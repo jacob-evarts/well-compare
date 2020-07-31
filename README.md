@@ -1,4 +1,5 @@
-#[GarciaLab](https://www.garcialab.org)
+[GarciaLab](https://www.garcialab.org)
+
 Code developed for research on modeling prion growth dynamics in budding yeast.
 This package is used to compare two 96 well plates well by well, for example
 comparing A1 of one plate to A1 or another plate, and so on. This code generates
