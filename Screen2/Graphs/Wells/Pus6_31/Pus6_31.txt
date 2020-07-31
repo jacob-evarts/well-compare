@@ -1,0 +1,12 @@
+List of significant wells for Pus6_31:
+R1- 0	R2- 0	R3- 0	R4- 5	
+
+Wells:
+A12
+B10
+E12
+F11
+G10
+
+List of significant wells for log of Pus6_31:
+No significant wells

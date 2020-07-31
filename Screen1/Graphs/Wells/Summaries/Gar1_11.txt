@@ -1,0 +1,6 @@
+List of significant wells for Gar1_11:
+R1- 2	R2- 0	R3- 0	R4- 0	
+
+Wells:
+A1_PO
+A3_PO

@@ -1,0 +1,9 @@
+List of significant wells for Pus6_CO:
+R1- 3	R2- 1	R3- 0	R4- 1	Total- 5
+
+Wells:
+A2_PO
+A3_PO
+E1_PO
+E5_PO
+A10_PO

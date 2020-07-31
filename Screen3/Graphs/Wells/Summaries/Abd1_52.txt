@@ -1,0 +1,20 @@
+List of significant wells for Abd1_52:
+R1- 7	R2- 3	R3- 5	R4- 1	
+
+Wells:
+A3_PO
+B2_PO
+B3_PO
+C1_PO
+D1_PO
+E1_PO
+F1_PO
+A4_PO
+A5_PO
+B4_PO
+A7_PO
+B9_PO
+F7_PO
+F9_PO
+H7_PO
+E12_PO

@@ -1,0 +1,14 @@
+List of significant wells for Ppm2_31:
+R1- 4	R2- 2	R3- 2	R4- 2	
+
+Wells:
+A1_PO
+A2_PO
+A3_PO
+H2_PO
+A6_PO
+G6_PO
+A7_PO
+B8_PO
+B11_PO
+C11_PO

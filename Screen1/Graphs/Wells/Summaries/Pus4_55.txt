@@ -1,0 +1,19 @@
+List of significant wells for Pus4_55:
+R1- 0	R2- 12	R3- 2	R4- 1	
+
+Wells:
+A6_PO
+B5_PO
+B6_PO
+C4_PO
+D4_PO
+E4_PO
+E6_PO
+F4_PO
+F5_PO
+F6_PO
+G4_PO
+G5_PO
+D8_PO
+D9_PO
+C11_PO

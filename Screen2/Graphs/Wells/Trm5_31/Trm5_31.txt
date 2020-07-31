@@ -1,0 +1,12 @@
+List of significant wells for Trm5_31:
+R1- 1	R2- 1	R3- 0	R4- 8	
+
+Wells:
+A2
+
+List of significant wells for log of Trm5_31:
+R1- 1	R2- 0	R3- 0	R4- 1	
+
+Wells:
+A1
+B10

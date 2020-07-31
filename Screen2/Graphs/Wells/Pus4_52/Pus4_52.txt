@@ -1,0 +1,11 @@
+List of significant wells for Pus4_52:
+R1- 1	R2- 0	R3- 0	R4- 0	
+
+Wells:
+A3
+
+List of significant wells for log of Pus4_52:
+R1- 1	R2- 0	R3- 0	R4- 0	
+
+Wells:
+A3
