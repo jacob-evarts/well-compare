@@ -5,14 +5,14 @@ comparing A1 of one plate to A1 or another plate, and so on. This code generates
 graphs, heatmaps, and sumarries of your data, while also performing some basic
 statistics.
 
-Usage -
-    Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
-    your screen directory, create another folder called 'Data' and put the 
-    excel file produce from the Epoch2 plate reader inside. Then, from the 
-    RME_Screen directory, run the file graph.py ($ python graph.py on the 
-    terminal).
+# Usage -
+Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
+your screen directory, create another folder called 'Data' and put the 
+excel file produce from the Epoch2 plate reader inside. Then, from the 
+RME_Screen directory, run the file graph.py ($ python graph.py on the 
+terminal).
     
-Requirements -
+# Requirements -
 1. Python3
 2. Pip3
 3. Python3 Pandas
@@ -21,9 +21,9 @@ Requirements -
 6. Python3 Scipy
 7. Python3 Seaborn
 
-Setup -
+# Setup -
 1. $ git clone https://github.com/jacobian0208/well_compare.git
-2. python setup.py
+2. $ python setup.py
 
-Files & Directories -
+# Files & Directories -
 
