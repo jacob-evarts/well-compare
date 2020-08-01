@@ -1,10 +1,10 @@
-[GarciaLab](https://www.garcialab.org)
-
 Code developed for research on modeling prion growth dynamics in budding yeast.
 This package is used to compare two 96 well plates well by well, for example
 comparing A1 of one plate to A1 or another plate, and so on. This code generates
 graphs, heatmaps, and sumarries of your data, while also performing some basic
 statistics.
+
+[GarciaLab](https://www.garcialab.org)
 
 # Usage -
 Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
@@ -29,4 +29,8 @@ Also outlined in requirements.txt:
 2. $ python setup.py
 
 # Files & Directories -
+1. graph.py : the main file to be run
+2. requirements.txt : a list of required packages to install to run this program correctly
+3. helpers/ : a directory with two helper files for cleaning and preparing the data
+4. LICENSE : an MIT license to allow use of this program
 
