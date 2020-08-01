@@ -1,0 +1,11 @@
+List of significant wells for Abd1_15:
+R1- 0	R2- 0	R3- 0	R4- 7	Total- 7
+
+Wells:
+A11_PO
+A12_PO
+F11_PO
+G10_PO
+G12_PO
+H11_PO
+H12_PO

@@ -22,16 +22,9 @@ import scipy.optimize as optim
 import seaborn as sns
 import os
 
-# Extracts the data from the format output by the Epoch2 plate reader
-import extract
-# Combines two raw files and does some light cleaning
-import combineOD as combine
-
-
-
-
-# How many hours are graphed (max for 4 day run: 97)
-XSCALE = 73
+# Helper files
+import helpers.extract as extract
+import helpers.combineOD as combine
 
 # For graphing different datasets
 # Options: "Screen1/"         *ORIGINAL SCREEN*
@@ -42,9 +35,13 @@ XSCALE = 73
 
 DATA_PATH = "test/"
 
+# Extracts the data from the format output by the Epoch2 plate reader
 extract.extr(DATA_PATH)
-
+# Combines two raw files and does some light cleaning
 combine.comb(DATA_PATH)
+
+# How many hours are graphed (max for 4 day run: 97)
+XSCALE = 73
         
 row_letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
 cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -99,7 +96,7 @@ def main():
             for file in os.listdir(DATA_PATH + "Raw_OD"):
                 # if the element is an xlsx file then
                 if file[-5:] == ".xlsx":
-                    file = file[0:7]
+                    file = file[0:-12]
                     if file not in file_names:
                         file_names.append(file)
         else:
@@ -107,6 +104,7 @@ def main():
     print("\nStarting...")
     
     for file_name in file_names:
+        # Create directories
         try:
             os.mkdir(DATA_PATH + "Graphs/" + file_name)
         except OSError:

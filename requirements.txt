@@ -1,0 +1,8 @@
+#### Requirements without Version Specifiers ####
+numpy
+pandas
+scipy
+seaborn
+
+#### Requirements with Version Specifiers ####
+matplotlib>=3.0.0

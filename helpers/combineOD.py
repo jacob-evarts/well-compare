@@ -19,14 +19,17 @@ def comb(DATA_PATH):
     except OSError:
         print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD"))
     try:
-        os.mkdir(DATA_PATH + "Model_OD/By_Replicate")
-    except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD/By_Replicate"))
-    try:
         os.mkdir(DATA_PATH + "Model_OD/By_Well")
     except OSError:
         print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD/By_Well"))
+    """
+    try:
+        os.mkdir(DATA_PATH + "Model_OD/By_Replicate")
+    except OSError:
+        print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD/By_Replicate"))
+    """
         
+    # Reads user input for plate names
     inp = ""
     file_names = []
     print("\nEnter list of proteins and conditions to COMBINE AND CLEAN before graphing (Ex. Pus6_17), or type all; stop to end:")
@@ -38,7 +41,7 @@ def comb(DATA_PATH):
             for file in os.listdir(DATA_PATH + "Raw_OD"):
                 # if the element is an xlsx file then
                 if file[-5:] == ".xlsx":
-                    file = file[0:7]
+                    file = file[0:-12]
                     if file not in file_names:
                         file_names.append(file)
         else:
@@ -53,10 +56,11 @@ def comb(DATA_PATH):
         # Growth with prior overexpression
         df_B = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "B_rawOD.xlsx")
         
-        df_A = df_A.drop("T° 600", axis=1)
-        df_B = df_B.drop("T° 600", axis=1)
+        # Drop the temperature column
+        df_A.drop(df_A.columns[1], axis=1, inplace=True)
+        df_B.drop(df_B.columns[1], axis=1, inplace=True)
         
-        repl_combined_df = pd.DataFrame()
+        #repl_combined_df = pd.DataFrame()
         well_combined_df = pd.DataFrame()
         
         # Well rows
@@ -67,21 +71,22 @@ def comb(DATA_PATH):
             times.append(x*2)
             
         times_series = pd.Series(times)
-        repl_combined_df["Time"] = times_series
+        #repl_combined_df["Time"] = times_series
         well_combined_df["Time"] = times_series
         
         # Reordering of wells so that comperable replicates are adjacent
+        """ Not necessary for current project
         for i in range(4):
              for j in range(8):
                 for k in range(3):
                     col_name = str(rows[j]) + str((k+i*3) + 1)
                     repl_combined_df[col_name + "_No_PO"] = df_A[col_name]
-                    
         for i in range(4):
              for j in range(8):
                 for k in range(3):
                     col_name = str(rows[j]) + str((k+i*3) + 1)
                     repl_combined_df[col_name + "_PO" ] = df_B[col_name]
+        """
         
         
         # Reordering of wells so that comperable wells are adjacent
@@ -91,9 +96,9 @@ def comb(DATA_PATH):
                 well_combined_df[col_name + "_No_PO"] = df_A[col_name]
                 well_combined_df[col_name + "_PO"] = df_B[col_name]
         
-        repl_path = DATA_PATH + "Model_OD/By_Replicate/" 
+        #repl_path = DATA_PATH + "Model_OD/By_Replicate/" 
         well_path = DATA_PATH + "Model_OD/By_Well/"
         
-        repl_combined_df.to_excel(repl_path + file_name + "_repl_combined.xlsx")
+        #repl_combined_df.to_excel(repl_path + file_name + "_repl_combined.xlsx")
         well_combined_df.to_excel(well_path + file_name + "_well_combined.xlsx")
         
