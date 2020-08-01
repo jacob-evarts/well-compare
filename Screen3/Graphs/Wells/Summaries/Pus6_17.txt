@@ -1,9 +1,0 @@
-List of significant wells for Pus6_17:
-R1- 3	R2- 1	R3- 0	R4- 1	
-
-Wells:
-A2_PO
-A3_PO
-G3_PO
-G5_PO
-F11_PO

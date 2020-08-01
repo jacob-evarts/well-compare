@@ -1,8 +1,0 @@
-List of significant wells for Cet1_31:
-R1- 0	R2- 2	R3- 2	R4- 0	
-
-Wells:
-A4_PO
-D6_PO
-D7_PO
-E7_PO

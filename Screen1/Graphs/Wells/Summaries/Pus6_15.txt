@@ -1,5 +1,0 @@
-List of significant wells for Pus6_15:
-R1- 0	R2- 0	R3- 0	R4- 1	
-
-Wells:
-A10_PO

@@ -1,9 +1,0 @@
-List of significant wells for Cet1_15:
-R1- 0	R2- 1	R3- 2	R4- 2	
-
-Wells:
-B4_PO
-F7_PO
-F8_PO
-F10_PO
-F11_PO

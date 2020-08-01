@@ -1,6 +1,0 @@
-List of significant wells for Nop1_15:
-R1- 0	R2- 0	R3- 0	R4- 2	
-
-Wells:
-F10_PO
-F11_PO
