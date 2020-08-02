@@ -1,6 +1,7 @@
 .DS_Store
-Screen*
-Full_Drop*
+Screens
 *.log
-Test
 __pycache__
+*.egg-info
+build
+dist
