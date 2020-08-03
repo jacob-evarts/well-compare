@@ -3,6 +3,7 @@ Screens
 *.log
 __pycache__
 *.egg-info
+*.egg
 build
 dist
 pkgTestEnv
