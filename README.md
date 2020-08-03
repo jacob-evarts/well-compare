@@ -18,22 +18,27 @@ terminal.
 Also outlined in requirements.txt:
 1. Python3
 2. Pip3
-3. Python3 Pandas
-4. Python3 Numpy
-5. Python3 Maplotlib
-6. Python3 Scipy
-7. Python3 Seaborn
-8. Python3 ArgParse
+3. Pandas
+4. Numpy
+5. Maplotlib
+6. Scipy
+7. Seaborn
+8. ArgParse
+9. xlrd
 
 ## Setup -
 Clone Repo:
-1. $ git clone https://github.com/jacobian0208/well_compare.git
-3. $ pip install -r requirements.txt
-2. $ python -m wellcompare \[options\]
+- Type the following commands into terminal
+$ git clone https://github.com/jacobian0208/well_compare.git
+$ pip install -r requirements.txt
+$ python -m wellcompare \[options\]
 
--- OR --
-Download Package:
-coming soon...
+###-- OR --
+
+Download Package (easier):
+- Type the following commands into terminal
+$ pip install wellcombine
+$ python -m wellcompare \[options\]
 
 ## Files & Directories -
 1. graph.py : module to graph cleaned data

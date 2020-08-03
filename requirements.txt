@@ -5,5 +5,7 @@ scipy
 seaborn
 matplotlib
 argparse
+openpyxl
 
 #### Requirements with Version Specifiers ####
+xlrd >= 1.0.0
