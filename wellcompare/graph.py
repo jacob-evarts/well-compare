@@ -23,8 +23,8 @@ import seaborn as sns
 import os
 
 # Helper files
-import helpers.extract as extract
-import helpers.combineOD as combine
+import wellcompare.helpers.extract as extract
+import wellcompare.helpers.combine as combine
 
 # For graphing different datasets
 # Options: "Screen1/"         *ORIGINAL SCREEN*
@@ -61,7 +61,7 @@ for i in range(8):
         hm_data_ymax[index][1] = cols[j]
         index += 1
         
-def main():
+def grph():
     # Create Directories
     try:
         os.mkdir(DATA_PATH + "Graphs")
@@ -392,4 +392,4 @@ def logistic(t, a, b, c):
     return c / (1 + a * np.exp(-b*t))
 
 if __name__ == "__main__":
-    main()
+    grph()
