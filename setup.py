@@ -15,8 +15,8 @@ with open("README.md", "r") as fh:
 REQUIREMENTS = [i.strip() for i in open("requirements.txt").readlines()]
 
 setuptools.setup(
-    name="wellcompare", 
-    version="1.0.0.dev3",
+    name="wellcompare",
+    version="1.0.0.dev4",
     author="Jacob Evarts",
     author_email="jevarts@uoregon.edu",
     description="A package for doing a well to well analysis of two 96 well plates",
