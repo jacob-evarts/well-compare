@@ -26,19 +26,20 @@ Also outlined in requirements.txt:
 8. ArgParse
 9. xlrd
 
-## Setup -
+## Setup & Installation (MacOS)-
 Clone Repo:
 - Type the following commands into terminal
 $ git clone https://github.com/jacobian0208/well_compare.git
 $ pip install -r requirements.txt
 $ python -m wellcompare \[options\]
 
-###OR
+-- OR --
 
 Download Package (easier):
 - Type the following commands into terminal
 $ pip install wellcombine
 $ python -m wellcompare \[options\]
+
 
 ## Files & Directories -
 1. graph.py : module to graph cleaned data
