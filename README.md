@@ -27,19 +27,18 @@ Also outlined in requirements.txt:
 9. xlrd
 
 ## Setup & Installation (MacOS)-
-Clone Repo:
+Download Package (recommended):
 - Type the following commands into terminal
-$ git clone https://github.com/jacobian0208/well_compare.git
-$ pip install -r requirements.txt
-$ python -m wellcompare \[options\]
+1. $ pip install wellcombine
+2. $ python -m wellcompare \[options\]
 
 -- OR --
 
-Download Package (easier):
+Clone Repo:
 - Type the following commands into terminal
-$ pip install wellcombine
-$ python -m wellcompare \[options\]
-
+1. $ git clone https://github.com/jacobian0208/well_compare.git
+2. $ pip install -r requirements.txt
+3. $ python -m wellcompare \[options\]
 
 ## Files & Directories -
 1. graph.py : module to graph cleaned data
