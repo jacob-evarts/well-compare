@@ -26,11 +26,13 @@ Also outlined in requirements.txt:
 # Setup -
 1. $ git clone https://github.com/jacobian0208/well_compare.git
 3. $ pip install -r requirements.txt
-2. $ python setup.py
+2. $ python -m wellcompare
 
 # Files & Directories -
-1. graph.py : the main file to be run
-2. requirements.txt : a list of required packages to install to run this program correctly
-3. helpers/ : a directory with two helper files for cleaning and preparing the data
-4. LICENSE : an MIT license to allow use of this program
+1. graph.py : module to graph cleaned data
+2. extract.py : module to extract and clean data from Epoch2 microplate reader output
+3. combine.py : module to combine and further clean extracted data
+4. __main__.py : main file to run package as script
+5. requirements.txt : a list of required packages to install to run this program correctly
+6. LICENSE : an MIT license to allow use of this program
 
