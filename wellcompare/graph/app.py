@@ -23,8 +23,8 @@ import seaborn as sns
 import os
 
 # Helper files
-import wellcompare.helpers.extract as extract
-import wellcompare.helpers.combine as combine
+from wellcompare.graph.helpers import extract
+from wellcompare.graph.helpers import combine
 
 # For graphing different datasets
 # Options: "Screen1/"         *ORIGINAL SCREEN*
@@ -32,13 +32,12 @@ import wellcompare.helpers.combine as combine
 #          "Screen3/"         *CHECKING SOME OTHER STRAINS*
 #          "Full_Drop1/"       *TESTING FULL DROUPOUT MEDIA*
 #          "Full_Drop2/"
+# or create your own directory inside Screens folder
 
-DATA_PATH = "test/"
+# Enter folder name here if running app.py as main
+DATA_PATH = "Screen3/"
 
-# Extracts the data from the format output by the Epoch2 plate reader
-extract.extr(DATA_PATH)
-# Combines two raw files and does some light cleaning
-combine.comb(DATA_PATH)
+DATA_PATH = "../../Screens/" + DATA_PATH
 
 # How many hours are graphed (max for 4 day run: 97)
 XSCALE = 73
@@ -61,7 +60,12 @@ for i in range(8):
         hm_data_ymax[index][1] = cols[j]
         index += 1
         
-def grph():
+def grph(DATA_PATH):
+    # Extracts the data from the format output by the Epoch2 plate reader
+    extract.extr(DATA_PATH)
+    # Combines two raw files and does some light cleaning
+    combine.comb(DATA_PATH)
+    
     # Create Directories
     try:
         os.mkdir(DATA_PATH + "Graphs")
@@ -392,4 +396,4 @@ def logistic(t, a, b, c):
     return c / (1 + a * np.exp(-b*t))
 
 if __name__ == "__main__":
-    grph()
+    grph(DATA_PATH)

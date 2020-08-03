@@ -16,15 +16,14 @@ REQUIREMENTS = [i.strip() for i in open("requirements.txt").readlines()]
 
 setuptools.setup(
     name="wellcompare",
-    version="1.0.0.dev6",
+    version="1.0.1.dev1",
     author="Jacob Evarts",
     author_email="jevarts@uoregon.edu",
     description="A package for doing a well to well analysis of two 96 well plates",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/jacobian0208/well_compare_96",
-    packages=setuptools.find_packages(exclude=["tests", "Screens", "Screens.*", "pkgTestEnv", "pkgTestEnv.*"]),
-    namespace_packages=setuptools.find_namespace_packages("wellcompare"),
+    packages=setuptools.find_namespace_packages(include=["wellcompare.*"], exclude=["tests", "Screens", "Screens.*", "pkgTestEnv", "pkgTestEnv.*"]),
     install_requires=REQUIREMENTS,  # for more serious requirements then requirements.txt
     classifiers=[
         "Development Status :: 3 - Alpha",

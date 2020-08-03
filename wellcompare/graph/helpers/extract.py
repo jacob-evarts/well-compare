@@ -15,7 +15,6 @@ import os
 
 
 def extr(DATA_PATH):
-    DATA_PATH = "test/"
     # Create Directory
     try:
         os.mkdir(DATA_PATH + "Raw_OD")
