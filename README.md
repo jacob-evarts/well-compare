@@ -1,11 +1,11 @@
+# [GarciaLab](https://www.garcialab.org)
+
+## Info-
 Code developed for research on modeling prion growth dynamics in budding yeast.
 This package is used to compare two 96 well plates well by well, for example
 comparing A1 of one plate to A1 or another plate, and so on. This code generates
 graphs, heatmaps, and sumarries of your data, while also performing some basic
 statistics.
-
-# [GarciaLab](https://www.garcialab.org)
-
 
 ## Usage -
 Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
@@ -26,9 +26,14 @@ Also outlined in requirements.txt:
 8. Python3 ArgParse
 
 ## Setup -
+Clone Repo:
 1. $ git clone https://github.com/jacobian0208/well_compare.git
 3. $ pip install -r requirements.txt
 2. $ python -m wellcompare \[options\]
+
+-- OR --
+Download Package:
+coming soon...
 
 ## Files & Directories -
 1. graph.py : module to graph cleaned data
