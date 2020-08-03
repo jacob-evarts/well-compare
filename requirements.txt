@@ -3,6 +3,7 @@ numpy
 pandas
 scipy
 seaborn
+matplotlib
+argparse
 
 #### Requirements with Version Specifiers ####
-matplotlib>=3.0.0

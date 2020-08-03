@@ -22,11 +22,16 @@ def extr(DATA_PATH):
         print ("Creation of the directory %s failed" % (DATA_PATH + "Raw_OD"))
         
     file_names = []
-    for file in os.listdir(DATA_PATH + "Data"):
-        # if the element is an xlsx file then
-        if file[-5:] == ".xlsx":
-            if file not in file_names:
-                file_names.append(file)
+    try:
+        for file in os.listdir(DATA_PATH + "Data"):
+            # if the element is an xlsx file then
+            if file[-5:] == ".xlsx":
+                if file not in file_names:
+                    file_names.append(file)
+    except FileNotFoundError:
+        print("Could not find file or directory " + DATA_PATH + "Raw_OD - exiting...")
+        exit(1)
+        
             
     for file_name in file_names:
         # Full spreadsheet
@@ -41,18 +46,18 @@ def extr(DATA_PATH):
         print("\nAre the first and last plates of " + file_name + " water plates? (y/n)")
         while (inp != "yes" and inp!= "y") and (inp != "no" and inp != "n"):
             inp = input("- ")
-            if inp == "yes" or inp == "y":
+            if inp == "yes" or inp == "y" or inp == "Y":
                 ig_plates.append(1)
                 ig_plates.append(num_sheets - 1)
                 continue
-            elif inp == "no" or inp == "n":
+            elif inp == "no" or inp == "n" or inp == "N":
                 continue
         
         # Checks if any plates can be ignored
         print("\nAre there any sheets/plates that can be ignored? (y/n) Out of " + \
-              str(num_sheets) + " sheets.")
+              str(num_sheets - 1) + " sheets.")
         inp = input("- ")
-        if inp == "y" or inp == "yes":
+        if inp == "y" or inp == "yes" or inp == "Y":
             print("Please enter plate numbers that can be ignored one at a time (Ex. 3); stop to end.")
             while inp != "stop":
                 inp = input("- ")
@@ -88,4 +93,9 @@ def extr(DATA_PATH):
                 file_path = DATA_PATH + "Raw_OD/" + inp + "_rawOD.xlsx"
                 df.to_excel(file_path, header=False, index=False)
             
-        print("\nExtracting...\n")
+        print("Extracting...\n")
+        
+if __name__ == "__main__":
+    print("Enter name of screen directory (Ex. 'Screen1')")
+    inp = input("- ")
+    extr("../Screens/" + inp + "/")

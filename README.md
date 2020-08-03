@@ -4,16 +4,17 @@ comparing A1 of one plate to A1 or another plate, and so on. This code generates
 graphs, heatmaps, and sumarries of your data, while also performing some basic
 statistics.
 
-[GarciaLab](https://www.garcialab.org)
+# [GarciaLab](https://www.garcialab.org)
 
-# Usage -
+
+## Usage -
 Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
 your screen directory, create another folder called 'Data' and put the 
 excel file produce from the Epoch2 plate reader inside. Then, from the 
 RME_Screen directory, run the file graph.py ($ python graph.py) on the 
 terminal.
     
-# Requirements -
+## Requirements -
 Also outlined in requirements.txt:
 1. Python3
 2. Pip3
@@ -22,13 +23,14 @@ Also outlined in requirements.txt:
 5. Python3 Maplotlib
 6. Python3 Scipy
 7. Python3 Seaborn
+8. Python3 ArgParse
 
-# Setup -
+## Setup -
 1. $ git clone https://github.com/jacobian0208/well_compare.git
 3. $ pip install -r requirements.txt
-2. $ python -m wellcompare
+2. $ python -m wellcompare \[options\]
 
-# Files & Directories -
+## Files & Directories -
 1. graph.py : module to graph cleaned data
 2. extract.py : module to extract and clean data from Epoch2 microplate reader output
 3. combine.py : module to combine and further clean extracted data

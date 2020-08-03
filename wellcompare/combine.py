@@ -32,21 +32,25 @@ def comb(DATA_PATH):
     # Reads user input for plate names
     inp = ""
     file_names = []
-    print("\nEnter list of proteins and conditions to COMBINE AND CLEAN before graphing (Ex. Pus6_17), or type all; stop to end:")
+    print("\nEnter list of proteins and conditions to COMBINE & CLEAN before graphing (Ex. Pus6_17), or type all; stop to end:")
     while inp != "stop" and inp != "all":
         inp = input("- ")
         if inp == "stop":
             continue
         elif inp == "all":
-            for file in os.listdir(DATA_PATH + "Raw_OD"):
-                # if the element is an xlsx file then
-                if file[-5:] == ".xlsx":
-                    file = file[0:-12]
-                    if file not in file_names:
-                        file_names.append(file)
+            try:
+                for file in os.listdir(DATA_PATH + "Raw_OD"):
+                    # if the element is an xlsx file then
+                    if file[-5:] == ".xlsx":
+                        file = file[0:-12]
+                        if file not in file_names:
+                            file_names.append(file)
+            except FileNotFoundError:
+                print("Could not find file or directory " + DATA_PATH + "Raw_OD - Exiting...")
+                exit(1)
         else:
             file_names.append(inp)
-    print("\nStarting...")
+    print("Starting...\n")
     
     # Loop through input strains data
     for file_name in file_names:
@@ -101,4 +105,9 @@ def comb(DATA_PATH):
         
         #repl_combined_df.to_excel(repl_path + file_name + "_repl_combined.xlsx")
         well_combined_df.to_excel(well_path + file_name + "_well_combined.xlsx")
+        
+if __name__ == "__main__":
+    print("Enter name of screen directory (Ex. 'Screen1')")
+    inp = input("- ")
+    comb("../Screens/" + inp + "/")
         

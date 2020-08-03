@@ -23,8 +23,11 @@ import seaborn as sns
 import os
 
 # Helper files
-from wellcompare.graph.helpers import extract
-from wellcompare.graph.helpers import combine
+from wellcompare import extract
+from wellcompare import combine
+
+# How many hours are graphed (max for 4 day run: 97)
+XSCALE = 73
 
 # For graphing different datasets
 # Options: "Screen1/"         *ORIGINAL SCREEN*
@@ -35,12 +38,9 @@ from wellcompare.graph.helpers import combine
 # or create your own directory inside Screens folder
 
 # Enter folder name here if running app.py as main
-DATA_PATH = "Screen3/"
-
-DATA_PATH = "../../Screens/" + DATA_PATH
-
-# How many hours are graphed (max for 4 day run: 97)
-XSCALE = 73
+DATA_PATH_HC = "Test/"
+DATA_PATH_HC = "../Screens/" + DATA_PATH_HC
+    
         
 row_letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
 cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -60,7 +60,10 @@ for i in range(8):
         hm_data_ymax[index][1] = cols[j]
         index += 1
         
-def grph(DATA_PATH):
+def grph(dp, hm_flag):
+    global DATA_PATH
+    DATA_PATH = dp
+    
     # Extracts the data from the format output by the Epoch2 plate reader
     extract.extr(DATA_PATH)
     # Combines two raw files and does some light cleaning
@@ -97,12 +100,16 @@ def grph(DATA_PATH):
         if inp == "stop":
             continue
         elif inp == "all":
-            for file in os.listdir(DATA_PATH + "Raw_OD"):
-                # if the element is an xlsx file then
-                if file[-5:] == ".xlsx":
-                    file = file[0:-12]
-                    if file not in file_names:
-                        file_names.append(file)
+            try:
+                for file in os.listdir(DATA_PATH + "Model_OD/By_Well"):
+                    # if the element is an xlsx file then
+                    if file[-5:] == ".xlsx":
+                        file = file[0:-19]
+                        if file not in file_names:
+                            file_names.append(file)
+            except FileNotFoundError:
+                print("Could not find file or directory " + DATA_PATH + "Raw_OD - Exiting...")
+                exit(1)
         else:
             file_names.append(inp)
     print("\nStarting...")
@@ -147,17 +154,17 @@ def grph(DATA_PATH):
                     row_n = j
                     graph_wells(df, w1, w2, col_n, row_n, file_name)
             
-        # Create heatmaps
-        hm_df_gr = pd.DataFrame(hm_data_gr)
-        hm_df_gr.columns = ["Rows", "Columns", "GR"]
+        if hm_flag:
+            # Create heatmaps
+            hm_df_gr = pd.DataFrame(hm_data_gr)
+            hm_df_gr.columns = ["Rows", "Columns", "GR"]
         
-        hm_df_ymax = pd.DataFrame(hm_data_ymax)
-        hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
-        
-        # Create heatmap for growth rate ratios
-        heatmap_gr(hm_df_gr, file_name)
-        # Create heatmap for ymax ratios
-        heatmap_ymax(hm_df_ymax, file_name)
+            hm_df_ymax = pd.DataFrame(hm_data_ymax)
+            hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
+            # Create heatmap for growth rate ratios
+            heatmap_gr(hm_df_gr, file_name)
+            # Create heatmap for ymax ratios
+            heatmap_ymax(hm_df_ymax, file_name)
         
         # Text file to summarize well data
         file_text = DATA_PATH + "Graphs/Summaries/" + file_name + ".txt"
@@ -181,7 +188,7 @@ def grph(DATA_PATH):
     
         f.close()
         
-        print("\nFinished " + file_name + "\n")
+        print("Finished " + file_name + "\n")
         
 # Graphs wells with estimated growth rates and logs results
 def graph_wells(df, well1, well2, col, row, file_n):
@@ -396,4 +403,4 @@ def logistic(t, a, b, c):
     return c / (1 + a * np.exp(-b*t))
 
 if __name__ == "__main__":
-    grph(DATA_PATH)
+    grph(DATA_PATH_HC, True)
