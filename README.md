@@ -33,7 +33,7 @@ $ git clone https://github.com/jacobian0208/well_compare.git
 $ pip install -r requirements.txt
 $ python -m wellcompare \[options\]
 
-###-- OR --
+###OR
 
 Download Package (easier):
 - Type the following commands into terminal
