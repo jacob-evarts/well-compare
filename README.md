@@ -8,11 +8,26 @@ graphs, heatmaps, and sumarries of your data, while also performing some basic
 statistics.
 
 ## Usage -
-Begin by creating a directory for your screen (Ex. "Screen1"). Inside of 
-your screen directory, create another folder called 'Data' and put the 
-excel file produce from the Epoch2 plate reader inside. Then, from the 
-RME_Screen directory, run the file graph.py ($ python graph.py) on the 
-terminal.
+Begin by creating a directory for your screens called 'Screens'. Next, 
+make a directory inside of that for every screen
+that you run (Ex. "Screen1"). Inside of your individual screen directory, 
+create another folder called 'Data' and put the excel file produce 
+from the Epoch2 plate reader inside. Then, from the outer directory, 
+run the package ($ python -m wellcompare) on the terminal. The program 
+will create several directories for you. Some notable ones are 'Graphs',
+which contains graphs and data summaries, and 'Heatmaps' (if -hm flag added).
+
+Example Directory Structure: 
+
+|- Outer_folder       <- run python -m wellcompare inside this outer directory
+|      |-Screen
+|          |- Screen1
+|                |- Data
+|                     |- screen1.xslx
+|          |- Screen2
+|                |- Data
+|                     |- screen2.xslx
+    
     
 ## Requirements -
 Also outlined in requirements.txt:
