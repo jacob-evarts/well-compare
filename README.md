@@ -19,14 +19,14 @@ which contains graphs and data summaries, and 'Heatmaps' (if -hm flag added).
 
 Example Directory Structure: 
 
-|- Outer_folder       <- run python -m wellcompare inside this outer directory
-|      |-Screen
-|          |- Screen1
-|                |- Data
-|                     |- screen1.xslx
-|          |- Screen2
-|                |- Data
-|                     |- screen2.xslx
+|- Outer_folder    <- run python -m wellcompare inside this outer directory  
+|      |-Screen  
+|            |- Screen1  
+|                  |- Data    
+|                       |- screen1.xslx   
+|            |- Screen2   
+|                  |- Data  
+|                       |- screen2.xslx   
     
     
 ## Requirements -
