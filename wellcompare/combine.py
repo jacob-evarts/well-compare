@@ -11,6 +11,7 @@ Created on Mon Aug 19 11:25:05 2019
     
 import pandas as pd
 import os
+from sys import exit
 
 def comb(DATA_PATH):
     # Create Directories
@@ -54,12 +55,14 @@ def comb(DATA_PATH):
     
     # Loop through input strains data
     for file_name in file_names:
-        # Growth with no prior overexpression
-        df_A = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "A_rawOD.xlsx")
-        
-        # Growth with prior overexpression
-        df_B = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "B_rawOD.xlsx")
-        
+        try:
+            # Growth with no prior overexpression
+            df_A = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "A_rawOD.xlsx")
+            # Growth with prior overexpression
+            df_B = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "B_rawOD.xlsx")
+        except FileNotFoundError:
+            print("Could not find " + file_name)
+            continue
         # Drop the temperature column
         df_A.drop(df_A.columns[1], axis=1, inplace=True)
         df_B.drop(df_B.columns[1], axis=1, inplace=True)

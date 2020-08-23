@@ -23,8 +23,8 @@ import seaborn as sns
 import os
 
 # Helper files
-from wellcompare import extract
-from wellcompare import combine
+import extract
+import combine
 
 # How many hours are graphed (max for 4 day run: 97)
 XSCALE = 73
@@ -37,10 +37,8 @@ XSCALE = 73
 #          "Full_Drop2/"
 # or create your own directory inside Screens folder
 
-# Enter folder name here if running app.py as main
-DATA_PATH_HC = "Test/"
-DATA_PATH_HC = "../Screens/" + DATA_PATH_HC
-    
+# Enter folder name hard coded here if running graph.py as main
+DATA_PATH_HC = "../Screens/Test/"  
         
 row_letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
 cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
@@ -60,7 +58,7 @@ for i in range(8):
         hm_data_ymax[index][1] = cols[j]
         index += 1
         
-def grph(dp, hm_flag):
+def grph(dp, hm_flag, log_flag):
     global DATA_PATH
     DATA_PATH = dp
     
@@ -77,7 +75,7 @@ def grph(dp, hm_flag):
     try:
         os.mkdir(DATA_PATH + "Graphs/Summaries")
     except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Graphs/WSummaries"))
+        print ("Creation of the directory %s failed" % (DATA_PATH + "Graphs/Summaries"))
     try:
         os.mkdir(DATA_PATH + "Heatmaps")
     except OSError:
@@ -112,9 +110,16 @@ def grph(dp, hm_flag):
                 exit(1)
         else:
             file_names.append(inp)
-    print("\nStarting...")
+    print("\nStarting...\n")
     
     for file_name in file_names:
+        
+        try:
+            df = pd.read_excel(DATA_PATH + "Model_OD/By_Well/" + file_name + "_well_combined.xlsx")
+        except FileNotFoundError:
+            print("Could not find " + file_name)
+            continue
+        
         # Create directories
         try:
             os.mkdir(DATA_PATH + "Graphs/" + file_name)
@@ -124,20 +129,24 @@ def grph(dp, hm_flag):
             os.mkdir(DATA_PATH + "Graphs/" + file_name + "/Raw_Graphs")
         except OSError:
             print ("Creation of the directory %s failed" % (DATA_PATH + "Graphs/" + file_name + "/Raw_Graphs"))
-        try:
-            os.mkdir(DATA_PATH + "Graphs/" + file_name + "/Log2_Graphs")
-        except OSError:
-            print ("Creation of the directory %s failed" % (DATA_PATH + "Graphs/" + file_name + "/Log2_Graphs"))
+            
+        if log_flag:
+            try:
+                os.mkdir(DATA_PATH + "Graphs/" + file_name + "/Log2_Graphs")
+            except OSError:
+                print ("Creation of the directory %s failed" % (DATA_PATH + "Graphs/" + file_name + "/Log2_Graphs"))
         
-        df = pd.read_excel(DATA_PATH + "Model_OD/By_Well/" + file_name + "_well_combined.xlsx")
-        
-        # Dropping rows if run stopped early
-        if DATA_PATH == "Screen3/":
-            df.drop(df.index[[47, 48]], inplace=True)
-        
-        # Keeping track of significant wells
+        # Keeping track of significant better wells
         global sig_wells 
         sig_wells = []
+        
+        # Keeping track of total number of significant wells
+        global total_sig
+        total_sig = 0
+        
+        # Keeping track of the number of wells that actually grew in BOTH plates
+        global num_viable
+        num_viable = 0
         
         # Keeping track of significance by replicate
         global sig_reps 
@@ -152,8 +161,8 @@ def grph(dp, hm_flag):
                     w2 = col_name + "_PO"
                     col_n = (k+i*3 + 1)
                     row_n = j
-                    graph_wells(df, w1, w2, col_n, row_n, file_name)
-            
+                    graph_wells(df, w1, w2, col_n, row_n, file_name, log_flag)
+    
         if hm_flag:
             # Create heatmaps
             hm_df_gr = pd.DataFrame(hm_data_gr)
@@ -174,24 +183,25 @@ def grph(dp, hm_flag):
         f.write("List of significant wells for " + file_name + ":\n")
         
         num_sig = len(sig_wells)
-        if num_sig == 0:
+        if total_sig == 0:
             f.write("No significant wells\n")
         else:
             for i in sig_reps:
                 f.write(i + "- " + str(sig_reps[i]))
                 f.write("\t")
-            f.write("Total- " + str(sum(sig_reps.values())))
+            f.write("\nNumber of significantly better wells- " + str(num_sig) + 
+                    " out of  " + str(num_viable) + " wells that grew\n")
+            f.write("Total number of significant wells- " + str(total_sig))
             f.write("\n\nWells:\n")
-            for i in range(len(sig_wells)):
+            for i in range(num_sig):
                 f.write(sig_wells[i])
                 f.write("\n")
-    
         f.close()
         
         print("Finished " + file_name + "\n")
         
 # Graphs wells with estimated growth rates and logs results
-def graph_wells(df, well1, well2, col, row, file_n):
+def graph_wells(df, well1, well2, col, row, file_n, log=False):
     # Calculate exponential portion of data for line fit
     exp1 = exponential_section(df, well1)
     exp2 = exponential_section(df, well2)
@@ -236,9 +246,11 @@ def graph_wells(df, well1, well2, col, row, file_n):
     # Cutoff for virtually no growth
     ymax1 = max(df[well1])
     ymax2 = max(df[well2])
+    global num_viable
     if ymax1 > 0.2 and ymax2 > 0.2:
         gr_ratio = (gr2 / gr1)
         ymax_ratio = (cc2 / cc1)
+        num_viable += 1
     else:
         gr_ratio = 0
         ymax_ratio = 0
@@ -268,12 +280,15 @@ def graph_wells(df, well1, well2, col, row, file_n):
     # Includes significance in graph
     pval = sig_test(df, well1, well2)
     sig = ""
+    global total_sig
     if pval:
         sig = "    Significant Dif."
         # Significantly better growth relating to 'live fast die young'
         if gr_ratio > 1 or (gr_ratio > 0.9 and ymax_ratio > 1):
             sig_wells.append(well2)
             sig_reps[replicate] += 1
+        if gr_ratio > 0:
+            total_sig += 1
     else:
         sig = "    Not significant"
         
@@ -403,4 +418,4 @@ def logistic(t, a, b, c):
     return c / (1 + a * np.exp(-b*t))
 
 if __name__ == "__main__":
-    grph(DATA_PATH_HC, True)
+    grph(DATA_PATH_HC, True, False)

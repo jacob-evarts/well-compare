@@ -12,6 +12,7 @@ Created on Thu Jul 30 13:10:02 2020
 
 import pandas as pd
 import os
+from sys import exit
 
 
 def extr(DATA_PATH):

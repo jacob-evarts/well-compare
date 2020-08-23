@@ -16,7 +16,7 @@ REQUIREMENTS = [i.strip() for i in open("requirements.txt").readlines()]
 
 setuptools.setup(
     name="wellcompare",
-    version="1.0.2.dev1",
+    version="1.0.5.dev1",
     author="Jacob Evarts",
     author_email="jevarts@uoregon.edu",
     description="A package for doing a well to well analysis of 96 well plates run in an Epoch2 microplate reader",
