@@ -83,7 +83,7 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     
     # You typically want your plot to be ~1.33x wider than tall.
     fig = plt.figure(figsize=(8,8))
-    fig.tight_layout(pad=3.0)
+    fig.tight_layout(pad=4.0)
     ax = []
     # Image 1: Growth curves
     # Remove the plot frame lines. They are unnecessary
@@ -109,13 +109,13 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[0].set_yticks(np.arange(0, 1.7, 0.2))
     ax[0].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 1.7, 0.2)], fontsize=14)
     ax[0].set_xticks(np.arange(0, xscale, 12))
-    ax[0].set_xticklabels([str(round(x,1)) for x in np.arange(0, xscale, 12)], fontsize=14)
+    ax[0].set_xticklabels([str(round(x,1)) for x in np.arange(0, xscale, 12)], fontsize=12)
     
     # Provide tick lines across the plot to help your viewers trace along the axis ticks.
     for y in np.arange(0, 1.7, 0.2):
         ax[0].plot(range(0, xscale), [y] * len(range(0, xscale)), "--", lw=0.5, color="black")
     
-    ax[0].set_xlabel("Time (h)", fontsize=14)
+    ax[0].set_xlabel("Time (h)", fontsize=12)
     ax[0].set_ylabel("OD 600", fontsize=14)
     
     # Graph Averags
@@ -150,15 +150,15 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax1 = fig.add_subplot(223)
     ax.append(ax1)
     ax[1].set_xlabel("Growth rate value bins", fontsize=14)
-    ax[1].set_ylabel("Number of wells", fontsize=14)
+    ax[1].set_ylabel("Frequency", fontsize=14)
     
-    ax[1].set_yticks(np.arange(0, 35, 5))
-    ax[1].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 35, 5)], fontsize=14)
+    ax[1].set_yticks(np.arange(0, 16, 2))
+    ax[1].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 16, 2)], fontsize=14)
     
     ax1_max = max(max(exp_grs), max(control_grs))
-    ax1_dist = round((ax1_max / 10), 2)
+    ax1_dist = round((ax1_max / 4), 3)
     ax[1].set_xticks(np.arange(0, (ax1_max+0.1), ax1_dist))
-    ax[1].set_xticklabels([str(round(x,1)) for x in np.arange(0, (ax1_max+0.1), ax1_dist)], fontsize=14)
+    ax[1].set_xticklabels([str(round(x,2)) for x in np.arange(0, (ax1_max+0.1), ax1_dist)], fontsize=14)
     
     ax[1].set_facecolor('white')
 
@@ -173,18 +173,18 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[1].axvline(exp_mean, color=exp_color)
     
     # Plot histogram and estimated PDF
-    sns.distplot(control_grs, ax=ax[1], color=control_color)  
-    sns.distplot(exp_grs, ax=ax[1], color=exp_color)
+    sns.distplot(control_grs, ax=ax[1], color=control_color, kde=False)  
+    sns.distplot(exp_grs, ax=ax[1], color=exp_color, kde=False)
      
     # Image 3: historgram of ymaxs
     ax2 = fig.add_subplot(224, sharey=ax[1])
     ax.append(ax2)
     ax[2].set_xlabel("Ymax value bins", fontsize=14)
-    ax[2].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 35, 5)], fontsize=14)
+    ax[2].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 16, 2)], fontsize=14)
     
     # Set x axis ticks
     ax2_max = max(max(exp_ymax), max(control_ymax))
-    ax2_dist = round((ax2_max / 10), 2)
+    ax2_dist = round((ax2_max / 4), 3)
     ax[2].set_xticks(np.arange(0, (ax2_max+0.1), ax2_dist))
     ax[2].set_xticklabels([str(round(x,1)) for x in np.arange(0, (ax2_max+0.1), ax2_dist)], fontsize=14)
     
@@ -201,8 +201,8 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[2].axvline(exp_mean, color=exp_color)
     
     # Plot histogram and estimated PDF
-    sns.distplot(control_ymax, ax=ax[2], color=control_color) 
-    sns.distplot(exp_ymax, ax=ax[2], color=exp_color)
+    sns.distplot(control_ymax, ax=ax[2], color=control_color, kde=False) 
+    sns.distplot(exp_ymax, ax=ax[2], color=exp_color, kde=False)
     
     # Save the images  
     path = data_path + "Graphs/Replicates/" + file_n + "/avg_repl_" + str(repl_n)

@@ -32,16 +32,21 @@ from grph import graph
 # or create your own directory inside Screens folder
 
 # Enter folder name hard coded here if running graph.py as main
-DATA_PATH_HC = "../Screens/Test/"  
+DATA_PATH_HC = "../Screens/Screen3/"  
               
 def process(dp, hm_flag, log_flag):
     global DATA_PATH
     DATA_PATH = dp
     
-    # Extracts the data from the format output by the Epoch2 plate reader
-    #extract.extr(DATA_PATH)
-    # Combines two raw files and does some light cleaning
-    #combine.comb(DATA_PATH)
+    inp=""
+    print("\nDoes data need to be extracted and cleaned? (y/n)")
+    while inp != "y" and inp != "n":
+        inp = input("- ")
+        if inp == "y":
+            # Extracts the data from the format output by the Epoch2 plate reader
+            extract.extr(DATA_PATH)
+            # Combines two raw files and does some light cleaning
+            combine.comb(DATA_PATH)
     
     # Create Directories
     make_dir(DATA_PATH + "Graphs")
