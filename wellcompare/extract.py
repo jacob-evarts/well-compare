@@ -18,9 +18,9 @@ from sys import exit
 def extr(DATA_PATH):
     # Create Directory
     try:
-        os.mkdir(DATA_PATH + "Raw_OD")
+        os.mkdir(DATA_PATH + "Data/Raw_OD")
     except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Raw_OD"))
+        print ("Creation of the directory %s failed" % (DATA_PATH + "Data/Raw_OD"))
         
     file_names = []
     try:
@@ -32,7 +32,6 @@ def extr(DATA_PATH):
     except FileNotFoundError:
         print("Could not find file or directory " + DATA_PATH + "Raw_OD - exiting...")
         exit(1)
-        
             
     for file_name in file_names:
         # Full spreadsheet
@@ -91,7 +90,7 @@ def extr(DATA_PATH):
                 df = pd.read_excel(xls, plate_name)
                 df = df.iloc[25:75, 1:99]
                 
-                file_path = DATA_PATH + "Raw_OD/" + inp + "_rawOD.xlsx"
+                file_path = DATA_PATH + "Data/Raw_OD/" + inp + "_rawOD.xlsx"
                 df.to_excel(file_path, header=False, index=False)
             
         print("Extracting...\n")

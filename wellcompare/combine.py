@@ -16,19 +16,9 @@ from sys import exit
 def comb(DATA_PATH):
     # Create Directories
     try:
-        os.mkdir(DATA_PATH + "Model_OD")
+        os.mkdir(DATA_PATH + "Data/Model_OD")
     except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD"))
-    try:
-        os.mkdir(DATA_PATH + "Model_OD/By_Well")
-    except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD/By_Well"))
-    """
-    try:
-        os.mkdir(DATA_PATH + "Model_OD/By_Replicate")
-    except OSError:
-        print ("Creation of the directory %s failed" % (DATA_PATH + "Model_OD/By_Replicate"))
-    """
+        print ("Creation of the directory %s failed" % (DATA_PATH + "Data/Model_OD"))
         
     # Reads user input for plate names
     inp = ""
@@ -40,14 +30,14 @@ def comb(DATA_PATH):
             continue
         elif inp == "all":
             try:
-                for file in os.listdir(DATA_PATH + "Raw_OD"):
+                for file in os.listdir(DATA_PATH + "Data/Raw_OD"):
                     # if the element is an xlsx file then
                     if file[-5:] == ".xlsx":
                         file = file[0:-12]
                         if file not in file_names:
                             file_names.append(file)
             except FileNotFoundError:
-                print("Could not find file or directory " + DATA_PATH + "Raw_OD - Exiting...")
+                print("Could not find file or directory " + DATA_PATH + "Data/Raw_OD - Exiting...")
                 exit(1)
         else:
             file_names.append(inp)
@@ -57,9 +47,9 @@ def comb(DATA_PATH):
     for file_name in file_names:
         try:
             # Growth with no prior overexpression
-            df_A = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "A_rawOD.xlsx")
+            df_A = pd.read_excel(DATA_PATH + "Data/Raw_OD/" + file_name + "A_rawOD.xlsx")
             # Growth with prior overexpression
-            df_B = pd.read_excel(DATA_PATH + "Raw_OD/" + file_name + "B_rawOD.xlsx")
+            df_B = pd.read_excel(DATA_PATH + "Data/Raw_OD/" + file_name + "B_rawOD.xlsx")
         except FileNotFoundError:
             print("Could not find " + file_name)
             continue
@@ -81,21 +71,6 @@ def comb(DATA_PATH):
         #repl_combined_df["Time"] = times_series
         well_combined_df["Time"] = times_series
         
-        # Reordering of wells so that comperable replicates are adjacent
-        """ Not necessary for current project
-        for i in range(4):
-             for j in range(8):
-                for k in range(3):
-                    col_name = str(rows[j]) + str((k+i*3) + 1)
-                    repl_combined_df[col_name + "_No_PO"] = df_A[col_name]
-        for i in range(4):
-             for j in range(8):
-                for k in range(3):
-                    col_name = str(rows[j]) + str((k+i*3) + 1)
-                    repl_combined_df[col_name + "_PO" ] = df_B[col_name]
-        """
-        
-        
         # Reordering of wells so that comperable wells are adjacent
         for i in range(12):
             for j in range(8):
@@ -103,14 +78,13 @@ def comb(DATA_PATH):
                 well_combined_df[col_name + "_No_PO"] = df_A[col_name]
                 well_combined_df[col_name + "_PO"] = df_B[col_name]
         
-        #repl_path = DATA_PATH + "Model_OD/By_Replicate/" 
-        well_path = DATA_PATH + "Model_OD/By_Well/"
+        path = DATA_PATH + "Data/Model_OD/"
         
         #repl_combined_df.to_excel(repl_path + file_name + "_repl_combined.xlsx")
-        well_combined_df.to_excel(well_path + file_name + "_well_combined.xlsx")
+        well_combined_df.to_excel(path + file_name + "_well_combined.xlsx")
         
 if __name__ == "__main__":
     print("Enter name of screen directory (Ex. 'Screen1')")
     inp = input("- ")
-    comb("../Screens/" + inp + "/")
+    comb("../Screens/Data/" + inp + "/")
         
