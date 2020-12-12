@@ -32,7 +32,7 @@ from grph import graph
 # or create your own directory inside Screens folder
 
 # Enter folder name hard coded here if running graph.py as main
-DATA_PATH_HC = "../Screens/Screen3/"  
+DATA_PATH_HC = "../Screens/Screen2/"  
               
 def process(dp, hm_flag, log_flag):
     global DATA_PATH
