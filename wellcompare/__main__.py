@@ -1,7 +1,11 @@
 #!/usr/bin/python
-
 import argparse
-from process import process
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    from process import proces
+else:
+    # uses current package visibility
+    from wellcompare.process import proces
 
 parser = argparse.ArgumentParser(description='Graphing options.',
                                  usage='%(prog) -m [-hm] [-log] [--version]')
@@ -18,6 +22,6 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
     print("Enter name of screen directory (Ex. 'Screen1')")
-    inp = input("- ")
-    process(inp + "/", args.hm, args.log)
+    inp = input("- ")    
+    proces(inp, args.hm, args.log)
     

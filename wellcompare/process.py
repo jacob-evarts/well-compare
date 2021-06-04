@@ -27,9 +27,9 @@ import plate
 # Enter folder name hard coded here if running graph.py as main for testing
 DATA_PATH_HC = "../Screens/Test/"  
               
-def process(dp, hm_flag, log_flag):
+def proces(dp, hm_flag, log_flag):
     global DATA_PATH
-    DATA_PATH = dp
+    DATA_PATH = dp + "/"
     
     # Extracts the data from the format output by the Epoch2 plate reader
     df_dict = extract.extr(DATA_PATH)

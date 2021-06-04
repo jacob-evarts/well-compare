@@ -25,7 +25,7 @@ def extr(DATA_PATH):
     # Data files from the experiment
     try:
         n_files = 0
-        for file in os.listdir(DATA_PATH + "Data"):
+        for file in os.listdir(DATA_PATH + "/Data"):
             # if the element is an xlsx file then
             if file[-5:] == ".xlsx":
                 data_file = file
