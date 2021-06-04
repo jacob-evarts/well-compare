@@ -18,12 +18,12 @@ The programwill create several directories for you. Some notable ones are
 Example Directory Structure:
 
 |- Outer_folder    <- run python -m wellcompare inside this outer directory   
-|       |- Screen1  
-|              |- Data    
-|                   |- screen1.xslx   
-|       |- Screen2   
-|              |- Data  
-|                   |- screen2.xslx   
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- Screen1  
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- Data    
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- screen1.xslx   
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- Screen2   
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- Data  
+|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|- screen2.xslx   
 
 
 ## Requirements -
