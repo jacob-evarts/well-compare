@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import argparse
-from graph import grph
+from process import process
 
 parser = argparse.ArgumentParser(description='Graphing options.',
                                  usage='%(prog) -m [-hm] [-log] [--version]')
@@ -19,5 +19,5 @@ args = parser.parse_args()
 if __name__ == "__main__":
     print("Enter name of screen directory (Ex. 'Screen1')")
     inp = input("- ")
-    grph("Screens/" + inp + "/", args.hm, args.log)
+    process(inp + "/", args.hm, args.log)
     

@@ -2,33 +2,30 @@
 
 ## Info-
 Code developed for research on modeling prion growth dynamics in budding yeast.
-This package is used to compare two 96 well plates well by well, for example
-comparing A1 of one plate to A1 or another plate, and so on. This code generates
-graphs, heatmaps, and sumarries of your data, while also performing some basic
-statistics.
+This package is used to compare 96 well plates that contain groupings of 
+experimental and control replicates. This code generates graphs, heatmaps, 
+and sumarries of your data, while also performing some basic statistics.
 
 ## Usage -
-Begin by creating a directory for your screens called 'Screens'. Next, 
-make a directory inside of that for every screen
-that you run (Ex. "Screen1"). Inside of your individual screen directory, 
-create another folder called 'Data' and put the excel file produce 
-from the Epoch2 plate reader inside. Then, from the outer directory, 
-run the package ($ python -m wellcompare) on the terminal. The program 
-will create several directories for you. Some notable ones are 'Graphs',
-which contains graphs and data summaries, and 'Heatmaps' (if -hm flag added).
+Make a directory every screen that you run (Ex. "Screen1"). Inside of your 
+individual screen directory, create another folder called 'Data' and put the 
+excel file producefrom the Epoch2 plate reader inside. Then, from outside that
+directory, run the package ($ python -m wellcompare) on the terminal. 
+The programwill create several directories for you. Some notable ones are 
+'Graphs', which contains graphs and data summaries, and 'Heatmaps' 
+(if -hm flag added) (temporarily disabled until further updates).
 
-Example Directory Structure: 
+Example Directory Structure:
 
-|- Outer_folder    <- run python -m wellcompare inside this outer directory  
-|      |-Screen  
-|            |- Screen1  
-|                  |- Data    
-|                       |- screen1.xslx   
-|            |- Screen2   
-|                  |- Data  
-|                       |- screen2.xslx   
-    
-    
+|- Outer_folder    <- run python -m wellcompare inside this outer directory   
+|       |- Screen1  
+|              |- Data    
+|                   |- screen1.xslx   
+|       |- Screen2   
+|              |- Data  
+|                   |- screen2.xslx   
+
+
 ## Requirements -
 Also outlined in requirements.txt:
 1. Python3
@@ -56,10 +53,12 @@ Clone Repo:
 3. $ python -m wellcompare \[options\]
 
 ## Files & Directories -
-1. graph.py : module to graph cleaned data
-2. extract.py : module to extract and clean data from Epoch2 microplate reader output
-3. combine.py : module to combine and further clean extracted data
+1. process.py : module that coordinates graphs and organizes experiment 
+   analysis
+2. graph.py : module to graph cleaned data
+3. extract.py : module to extract and clean data from Epoch2 microplate reader 
+   output
 4. __main__.py : main file to run package as script
-5. requirements.txt : a list of required packages to install to run this program correctly
+5. requirements.txt : a list of required packages to install to run this 
+   program correctly
 6. LICENSE : an MIT license to allow use of this program
-

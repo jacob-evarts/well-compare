@@ -3,6 +3,8 @@
 """
 Created on Wed Dec  9 12:46:52 2020
 
+Updated on June 3, 2021
+
 @author: jacob
 """
 import pandas as pd
@@ -11,8 +13,8 @@ import scipy.optimize as optim
 import numpy as np
 from scipy import stats
 
-from heatmap import heatmap_gr, heatmap_ymax
-from graph_repl import graph_repls
+#from heatmap import heatmap_gr, heatmap_ymax
+#from graph_repl import graph_repls
 
 # How many hours are graphed
 XSCALE = 97
@@ -22,166 +24,27 @@ cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 # List for making heatmaps
 w, h = 3, 96
-hm_data_gr = [[0 for x in range(w)] for y in range(h)]  
-hm_data_ymax = [[0 for x in range(w)] for y in range(h)]  
+hm_data_gr = [[0 for x in range(w)] for y in range(h)]
+hm_data_ymax = [[0 for x in range(w)] for y in range(h)]
 
 index = 0
 for i in range(8):
     for j in range(12):
         hm_data_gr[index][0] = row_letters[i]
         hm_data_gr[index][1] = cols[j]
-        
+
         hm_data_ymax[index][0] = row_letters[i]
         hm_data_ymax[index][1] = cols[j]
         index += 1
-                
-def graph(df, data_path, hm_flag, log_flag):
-    # Keeping track of significant better wells
-    global sig_wells 
-    sig_wells = []
-        
-    # Keeping track of total number of significant wells
-    global total_sig
-    total_sig = 0
-    
-    # Keeping track of the number of wells that grew in BOTH plates
-    global num_viable
-    num_viable = 0
-        
-    # Keeping track of significance by replicate
-    global sig_reps 
-    sig_reps = {"R1":0, "R2":0, "R3":0, "R4":0}
-        
-    # Graph the growth curves of all wells and their logarithms
-    for i in range(4):
-        for j in range(8):
-            for k in range(3):
-                col_name = str(row_letters[j]) + str((k+i*3) + 1)
-                w1 = col_name + "_No_PO"
-                w2 = col_name + "_PO"
-                col_n = (k+i*3 + 1)
-                row_n = j
-                graph_wells(df, w1, w2, col_n, row_n, data_path, log_flag)
-                
-    # Calculates all the wells in each replicates
-    for i in range(4):
-        repl = [x + str(y+1) for x in row_letters for y in range((i*3), (i+1) * 3)]
-        graph_repls(df, repl, (i+1), data_path, XSCALE)
-        
-    file_n = df.name
-    # If user indicates they want heatmaps (hm_flag = True)
-    if hm_flag:
-        # Create heatmaps
-        hm_df_gr = pd.DataFrame(hm_data_gr)
-        hm_df_gr.columns = ["Rows", "Columns", "GR"]
-    
-        hm_df_ymax = pd.DataFrame(hm_data_ymax)
-        hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
-        # Create heatmap for growth rate ratios
-        heatmap_gr(hm_df_gr, file_n, data_path)
-        # Create heatmap for ymax ratios
-        heatmap_ymax(hm_df_ymax, file_n, data_path)
-        
-    # Text file to summarize well data
-    file_text = data_path + "Summaries/" + file_n + ".txt"
-    f = open(file_text, "w+")
-    
-    # Write summary of plate to txt file
-    f.write("List of significant better wells per replicate for " + file_n + ":\n")
-    num_sig = len(sig_wells)
-    if total_sig == 0:
-        f.write("No significant wells\n")
-    else:
-        for i in sig_reps:
-            f.write(i + "- " + str(sig_reps[i]))
-            f.write("\t")
-        f.write("\nNumber of significantly better wells- " + str(num_sig) + 
-                " out of  " + str(num_viable) + " wells that grew\n")
-        f.write("Total number of significant wells- " + str(total_sig))
-        f.write("\n\nWells:\n")
-        for i in range(num_sig):
-            f.write(sig_wells[i])
-            f.write("\n")
-    f.close()
-        
-    print("Finished " + file_n + "\n")
 
-# Graphs wells with estimated growth rates and logs results
-def graph_wells(df, well1, well2, col, row, data_path, log=False):  
-    file_n = df.name
-    global num_viable
-    global sig_wells
-    global total_sig
-    global sig_reps 
-    
-    gr1, ymax1, line1 = fit_model(df, well1)
-    gr2, ymax2, line2 = fit_model(df, well2)
-    
-    # Previous O/E over no previous O/E 
-    # Cutoff for virtually no growth
-    if ymax1 > 0.2 and ymax2 > 0.2:
-        gr_ratio = (gr2 / gr1)
-        ymax_ratio = (ymax2 / ymax1)
-        num_viable += 1
-    else:
-        gr_ratio = 0
-        ymax_ratio = 0
-        
-    # Gets well address
-    well = ""
-    if col < 10:
-        well = well1[0:2]
-    else:
-        well = well1[0:3]
-    
-    # Format data for heatmaps
-    hm_data_gr[(col + row * 12) - 1][2] = gr_ratio
-    hm_data_ymax[(col + row * 12) - 1][2] = ymax_ratio
-    
-    # Calculates what replicate the well belongs to
-    replicate = 0
-    if col <= 3:
-        replicate = "R1"
-    elif col <= 6:
-        replicate = "R2"
-    elif col <= 9:
-        replicate = "R3"
-    else:
-        replicate = "R4"
-    
-    # Test the significance of the fitted parameters
-    gr_stats = t_test(df[well1], df[well2])
-    #ymax_stats = t_test(exp_ymax, control_ymax)
-        
-    gr_pval = gr_stats[1]
-    #ymax_pval = ymax_stats[1]
-        
-    # Includes significance in graph
-    gr_sig = ""
-    if gr_pval > 0.05:
-        gr_sig = " GR: NS "
-    else:
-        if gr_pval <= 0.001:
-            gr_sig = " GR:*** "
-        elif gr_pval <= 0.01:
-            gr_sig = " GR:**  "
-        else:
-            gr_sig = " GR:*   "
-        # If growth is significantly better
-        if gr_ratio > 1 or ymax_ratio > 1:
-            sig_wells.append(well2)
-            sig_reps[replicate] += 1
-        # If growth is significant
-        if gr_ratio > 0:
-            total_sig += 1
-        
+def graph(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, log_flag, avg=False):
     """ Plotting """
-    control_color = '#3867d6'
-    exp_color = '#eb3b5a'
-    
     # You typically want your plot to be ~1.33x wider than tall.
     # Common sizes: (10, 7.5) and (12, 9)
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(10, 7.5))
+    
+    con_color = "#0466c8"
+    exp_color = "#d62828"
 
     # Remove the plot frame lines. They are unnecessary
     ax = plt.subplot(111)
@@ -209,29 +72,194 @@ def graph_wells(df, well1, well2, col, row, data_path, log=False):
     for y in np.arange(0, 1.7, 0.2):
         plt.plot(range(0, XSCALE), [y] * len(range(0, XSCALE)), "--", lw=0.5, color="black", alpha=0.3)
         
-    plt.plot(df["Time"], df[well1], color=control_color, label="No PO/E", linewidth=1.0)
-    plt.plot(df["Time"], df[well2], color=exp_color, label="PO/E", linewidth=1.0)
-    plt.plot(*line1, 'b', linestyle = "--", linewidth=0.5)
-    plt.plot(*line2, 'r', linestyle = "--", linewidth=0.5)
+    """ Calculations """   
+    # Parameter fits for individual control wells
+    control_grs = []
+    control_ymaxs = []
+    # Storing wells to compute average of replicate
+    control_wells = []
+    con_avg = con_name + "_avg"
+    
+    # Lists of parameter values for the experimental replicate
+    exp_grs = []
+    exp_ymaxs = []
+    # Storing wells to compute average of replicate
+    exp_wells = []
+    exp_avg = exp_name + "_avg"
+    
+    avg_df = pd.DataFrame()
+    avg_df["Time"] = [x * 2 for x in range(0, 48)]
+    
+    # Calculate parameter values for individual wells
+    for plate_name in con_data.keys():
+        # Plate
+        df = df_dict[plate_name]
+        # Wells in that specific plate that belong to given control replicate
+        wells = con_data[plate_name]
+        for well in wells:
+            control_wells.append(df[well])
+            gr, ymax, line = fit_model(df, well)
+            if gr < 2:
+                control_grs.append(gr)
+            if ymax < 2: 
+                control_ymaxs.append(ymax)
+                
+    for plate_name in exp_data.keys():
+        # Plate
+        df = df_dict[plate_name]
+        # Wells in that specific plate that belong to given control replicate
+        wells = exp_data[plate_name]
+        for well in wells:
+            exp_wells.append(df[well])
+            gr, ymax, line = fit_model(df, well)
+            if gr < 2:
+                exp_grs.append(gr)
+            if ymax < 2: 
+                exp_ymaxs.append(ymax)
+                
+    # Calculate averages for replicates
+    con_mean, con_std, con_ci = avg_well(control_wells)
+    avg_df[con_avg] = con_mean
+    avg_df[con_name + "_std"] = con_std
+    avg_df[con_name + "_ci"] = con_ci
+    
+    exp_mean, exp_std, exp_ci = avg_well(exp_wells)
+    avg_df[exp_avg] = exp_mean
+    avg_df[exp_name + "_std"] = exp_std
+    avg_df[exp_name + "_ci"] = exp_ci
+    
+    # Parameter fits for average control model
+    con_gr, con_ymax, con_line = fit_model(avg_df, con_avg)
+    # Parameter fits for average exp model
+    exp_gr, exp_ymax, exp_line = fit_model(avg_df, exp_avg)
+    
+    # T-test for growth rate and ymax parameter values
+    gr_stats = t_test(exp_grs, control_grs)
+    ymax_stats = t_test(exp_ymaxs, control_ymaxs)
+    # P-values
+    gr_pval = gr_stats[1]
+    ymax_pval = ymax_stats[1]
+    
+    if con_ymax > 0.2 and exp_ymax > 0.2:
+        # Normaalize experimental parameters with control parameters
+        gr_ratio = (exp_gr / con_gr) 
+        ymax_ratio = (exp_ymax / con_ymax)
+    else:
+        gr_ratio = 0
+        ymax_ratio = 0
+            
+        # Symbols on graph to indicate better growth by experimental strain
+    better_gr = ""
+    if gr_ratio > 1:
+        better_gr += "^ "
+    better_ymax = ""
+    if ymax_ratio > 1:
+        better_ymax += "^ "
+
+    # Graph average experimental line
+    plt.plot(avg_df["Time"], avg_df[exp_avg], color=exp_color, label=(exp_name), linewidth=3.0)
+    plt.plot(*exp_line, 'r', linestyle = "--", color=exp_color, linewidth=1)
+    # Confidence intervals
+    exp_ci_hi =  avg_df[exp_avg] + avg_df[exp_name + "_ci"]
+    exp_ci_low = avg_df[exp_avg] - avg_df[exp_name + "_ci"]
+    plt.plot(avg_df["Time"], exp_ci_hi, color=exp_color, linestyle=":", linewidth=1.5)
+    plt.plot(avg_df["Time"], exp_ci_low, color=exp_color, linestyle=":", linewidth=1.5)
+        
+    # Graph average control line  
+    plt.plot(avg_df["Time"], avg_df[con_avg], color=con_color, label=(con_name), linewidth=3.0)
+    plt.plot(*con_line, 'r', linestyle = "--", color=con_color, linewidth=1)
+    # Confidence intervals
+    con_ci_hi =  avg_df[con_avg] + avg_df[con_name + "_ci"]
+    con_ci_low = avg_df[con_avg] - avg_df[con_name + "_ci"]
+    plt.plot(avg_df["Time"], con_ci_hi, color=con_color, linestyle=":", linewidth=1.5)
+    plt.plot(avg_df["Time"], con_ci_low, color=con_color, linestyle=":", linewidth=1.5)
+    
+    # Plot histograms
+    # graph_repls(con_grs, con_ymaxs, exp_grs, exp_ymax,con_name, exp_name, data_path)
     
     # Place a legend to the right
-    lgd = ax.legend(bbox_to_anchor = (1.35, 0.9), 
+    lgd = ax.legend(
                     loc = 'upper right', 
                     borderaxespad = 0., 
                     facecolor = 'white', 
-                    fontsize = 20
+                    fontsize = 16
                     )
-        
-    plt.title("Well- " + well + "    " + replicate + "    GR_ratio: %.3f" % (gr_ratio) + gr_sig, fontsize=24)
-    path = data_path + "Graphs/" + file_n + "/Raw_Graphs/" + well + "_" + replicate
-    plt.savefig(path, bbox_extra_artists=(lgd,),bbox_inches='tight')
+
+    plt.title(f"{exp_name} vs. {con_name}- GR ratio:{round(gr_ratio, 3)} ({round(gr_pval, 3)}) Ymax ratio: {round(ymax_ratio, 3)} ({round(ymax_pval, 3)})", fontsize=20)
+    path =  data_path + "Graphs/" + exp_name
+    plt.savefig(path, bbox_extra_artists=(lgd,), bbox_inches='tight')
     plt.close()
     
-""" Auxillary Functions """       
+    # If user indicates they want heatmaps (hm_flag = True)
+    """
+    if hm_flag:
+        # Create heatmaps
+        hm_df_gr = pd.DataFrame(hm_data_gr)
+        hm_df_gr.columns = ["Rows", "Columns", "GR"]
+
+        hm_df_ymax = pd.DataFrame(hm_data_ymax)
+        hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
+        # Create heatmap for growth rate ratios
+        heatmap_gr(hm_df_gr, file_n, data_path)
+        # Create heatmap for ymax ratios
+        heatmap_ymax(hm_df_ymax, file_n, data_path)
+    """
+    
+    """
+    # Text file to summarize well data
+    file_text = data_path + "Summaries/" + file_n + ".txt"
+    f = open(file_text, "w+")
+
+    # Write summary of plate to txt file
+    f.write("List of significant better wells per replicate for " + file_n + ":\n")
+    num_sig = len(sig_wells)
+    if total_sig == 0:
+        f.write("No significant wells\n")
+    else:
+        for i in sig_reps:
+            f.write(i + "- " + str(sig_reps[i]))
+            f.write("\t")
+        f.write("\nNumber of significantly better wells- " + str(num_sig) +
+                " out of  " + str(num_viable) + " wells that grew\n")
+        f.write("Total number of significant wells- " + str(total_sig))
+        f.write("\n\nWells:\n")
+        for i in range(num_sig):
+            f.write(sig_wells[i])
+            f.write("\n")
+    f.close()
+    """
+
+""" Auxillary Functions """
 # P-test on individual wells
 def t_test(data1, data2) -> int:
     ind_ttest = stats.ttest_ind(data1, data2)
     return ind_ttest
+
+def fit_model(df, well):
+    # Calculate exponential portion of data for line fit
+        exp = exponential_section(df, well)
+        # Fitting lines to exponential portions to graph
+        slope = 0
+        if not exp.empty:
+            slope, line = fit_line(exp, well)
+        else:
+            line = [(0,0), (0,0)]
+
+        # Fit a logistical model to calculate growth rate
+        p0 = np.random.exponential(size=3) # Initialize random values
+        bounds = (0, [10000000., 100., 10000000.]) #Set bounds
+        # Prepare model 1
+        xt = np.array(df["Time"])
+        yt = np.array(df[well])
+
+        # If no logistic curve can be fit, default to less sophisticated method of fitting line to exponentional section of the graph
+        try:
+            # Fit model 1
+            (a, gr, ymax), cov = optim.curve_fit(logistic, xt, yt, bounds=bounds, p0=p0)
+        except (RuntimeError, ValueError):
+            gr = slope
+            ymax = max(df[well])
+        return gr, ymax, line
 
 # Estimates expinential growth section of growth curve to compute growth rate
 def exponential_section(df, well):
@@ -246,6 +274,8 @@ def exponential_section(df, well):
 
 # Fits a line to a given section of a graph. Returns the slope and endpoints of the line
 def fit_line(exp, well):
+    exp["Time"] = pd.to_numeric(exp["Time"])
+    exp[well] = pd.to_numeric(exp[well])
     slope, intercept, r_value, p_value, std_err = stats.linregress(exp["Time"], exp[well])
     x1 = int(exp.iloc[:1,:1].values)
     x2 = int(exp.iloc[-1:,:1].values)
@@ -256,32 +286,22 @@ def fit_line(exp, well):
     line = [p1, p2]
     return slope, line
 
-def fit_model(df, well):
-    # Calculate exponential portion of data for line fit
-        exp = exponential_section(df, well)
-        # Fitting lines to exponential portions to graph
-        slope = 0
-        if not exp.empty:
-            slope, line = fit_line(exp, well)
-        else:
-            line = [(0,0), (0,0)]
-                
-        # Fit a logistical model to calculate growth rate
-        p0 = np.random.exponential(size=3) # Initialize random values
-        bounds = (0, [10000000., 100., 10000000.]) #Set bounds
-        # Prepare model 1
-        xt = np.array(df["Time"])
-        yt = np.array(df[well])
-            
-        # If no logistic curve can be fit, default to less sophisticated method of fitting line to exponentional section of the graph
-        try:
-            # Fit model 1
-            (a, gr, ymax), cov = optim.curve_fit(logistic, xt, yt, bounds=bounds, p0=p0)
-        except (RuntimeError, ValueError):
-            gr = slope 
-            ymax = max(df[well])
-        return gr, ymax, line
-
 # Logistical funtion used to model growth rate
 def logistic(t, a, b, c):
     return c / (1 + a * np.exp(-b*t))
+
+# Returns several statistics for group of dataframe columns (mean, SD, 95% CI)
+def avg_well(well_list):   
+    col = pd.DataFrame()
+    n = 0
+    for i in range(len(well_list)):
+        well = well_list[i]
+        # Check if well was viable
+        if max(well) > 0.2:
+            col[str(i)] = well
+            n += 1 
+    mean = col.mean(axis=1).reset_index(drop=True)
+    std = col.std(axis=1).reset_index(drop=True)
+    std_err = col.sem(axis=1).reset_index(drop=True)
+    ci95 = std_err * stats.t.ppf((1 + 0.95) / 2, n - 1)
+    return mean, std, ci95  

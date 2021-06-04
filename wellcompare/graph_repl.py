@@ -5,6 +5,7 @@ Created on Thu Dec 10 09:31:00 2020
 
 @author: jacob
 """
+import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.optimize as optim
 import numpy as np
@@ -24,13 +25,18 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
         # Get parameters from control well
         cwell = well + "_No_PO"
         gr1, ymax1, line1 = fit_model(df, cwell)
-        control_grs.append(gr1)
-        control_ymax.append(ymax1)
+        # Remove erroneous values
+        if gr1 < 1.5:
+            control_grs.append(gr1)
+        if ymax1 < 2:
+            control_ymax.append(ymax1)
         # Get parameters from experimental well
         ewell = well + "_PO"
         gr2, ymax2, line2 = fit_model(df, ewell)
-        exp_grs.append(gr2)
-        exp_ymax.append(ymax2)
+        if gr2 < 1.5:
+            exp_grs.append(gr2)
+        if ymax2 < 2:
+            exp_ymax.append(ymax2)
         
     # Test the significance of the fitted parameters
     gr_stats = t_test(exp_grs, control_grs)
@@ -46,9 +52,23 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     df["Exp_avg_" + str(repl_n)] = exp_avg
     df["Control_avg_" + str(repl_n)] = control_avg
     
-    gr1, ymax1, line1 = fit_model(df, "Exp_avg_" + str(repl_n))
+    gr1, ymax1, line1 = fit_model(df, "Control_avg_" + str(repl_n))
     gr2, ymax2, line2 = fit_model(df, "Exp_avg_" + str(repl_n))
-        
+    
+    # Convert the list of param values to dataframe for graphing
+    gr_df = pd.DataFrame(control_grs, columns=["GR"])
+    gr_df["Strain"] = "Control"
+    gr_df_inter = pd.DataFrame(exp_grs, columns=["GR"])
+    gr_df_inter["Strain"] = "Experimental"
+    
+    ymax_df = pd.DataFrame(control_ymax, columns=["Ymax"])
+    ymax_df["Strain"] = "Control"
+    ymax_df_inter = pd.DataFrame(exp_ymax, columns=["Ymax"])
+    ymax_df_inter["Strain"] = "Experimental"
+    
+    gr_df = pd.concat([gr_df, gr_df_inter], ignore_index=True)
+    ymax_df = pd.concat([ymax_df, ymax_df_inter], ignore_index=True)
+    
     if ymax1 > 0.2 and ymax2 > 0.2:
         gr_ratio = (gr2 / gr1) 
         ymax_ratio = (ymax2 / ymax1)
@@ -135,7 +155,6 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[0].plot(df["Time"], ciB_hi, color=exp_color, linestyle=":", linewidth=1)
     ax[0].plot(df["Time"], ciB_low, color=exp_color, linestyle=":", linewidth=1)   
     
-    
     # Place a legend to the right
     lgd = ax[0].legend(
                     borderaxespad = 0., 
@@ -150,16 +169,7 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax1 = fig.add_subplot(223)
     ax.append(ax1)
     ax[1].set_xlabel("Growth rate value bins", fontsize=14)
-    ax[1].set_ylabel("Frequency", fontsize=14)
-    
-    ax[1].set_yticks(np.arange(0, 16, 2))
-    ax[1].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 16, 2)], fontsize=14)
-    
-    ax1_max = max(max(exp_grs), max(control_grs))
-    ax1_dist = round((ax1_max / 4), 3)
-    ax[1].set_xticks(np.arange(0, (ax1_max+0.1), ax1_dist))
-    ax[1].set_xticklabels([str(round(x,2)) for x in np.arange(0, (ax1_max+0.1), ax1_dist)], fontsize=14)
-    
+    ax[1].set_ylabel("Frequency", fontsize=14)    
     ax[1].set_facecolor('white')
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.
@@ -173,21 +183,16 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[1].axvline(exp_mean, color=exp_color)
     
     # Plot histogram and estimated PDF
-    sns.distplot(control_grs, ax=ax[1], color=control_color, kde=False)  
-    sns.distplot(exp_grs, ax=ax[1], color=exp_color, kde=False)
-     
+    sns.histplot(data=gr_df, x="GR", hue="Strain", 
+                 ax=ax[1], legend=False, color=control_color, 
+                 bins = 15, kde=False, multiple="layer",
+                 palette=['#3867d6', '#eb3b5a'])  
+    
     # Image 3: historgram of ymaxs
     ax2 = fig.add_subplot(224, sharey=ax[1])
     ax.append(ax2)
     ax[2].set_xlabel("Ymax value bins", fontsize=14)
-    ax[2].set_yticklabels([str(round(x, 1)) for x in np.arange(0, 16, 2)], fontsize=14)
-    
-    # Set x axis ticks
-    ax2_max = max(max(exp_ymax), max(control_ymax))
-    ax2_dist = round((ax2_max / 4), 3)
-    ax[2].set_xticks(np.arange(0, (ax2_max+0.1), ax2_dist))
-    ax[2].set_xticklabels([str(round(x,1)) for x in np.arange(0, (ax2_max+0.1), ax2_dist)], fontsize=14)
-    
+    ax[2].set_ylabel(" ")
     ax[2].set_facecolor('white')
 
     # Ensure that the axis ticks only show up on the bottom and left of the plot.
@@ -201,8 +206,11 @@ def graph_repls(df, repl_wells, repl_n, data_path, xscale):
     ax[2].axvline(exp_mean, color=exp_color)
     
     # Plot histogram and estimated PDF
-    sns.distplot(control_ymax, ax=ax[2], color=control_color, kde=False) 
-    sns.distplot(exp_ymax, ax=ax[2], color=exp_color, kde=False)
+    sns.histplot(data=ymax_df, x = "Ymax", 
+                 hue="Strain", ax=ax[2], legend=False,
+                 color=control_color, bins = 15, 
+                 kde=False, multiple = "layer",
+                 palette=['#3867d6', '#eb3b5a'])  
     
     # Save the images  
     path = data_path + "Graphs/Replicates/" + file_n + "/avg_repl_" + str(repl_n)
