@@ -37,8 +37,8 @@ for i in range(8):
         hm_data_ymax[index][1] = cols[j]
         index += 1
 
-def graph(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, log_flag, avg=False):
-    """ Plotting """
+def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, log_flag, avg=False):
+    """ Plot Formatting """
     # You typically want your plot to be ~1.33x wider than tall.
     # Common sizes: (10, 7.5) and (12, 9)
     plt.figure(figsize=(10, 7.5))
@@ -155,7 +155,8 @@ def graph(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, l
     better_ymax = ""
     if ymax_ratio > 1:
         better_ymax += "^ "
-
+    
+    """ Graphing """
     # Graph average experimental line
     plt.plot(avg_df["Time"], avg_df[exp_avg], color=exp_color, label=(exp_name), linewidth=3.0)
     plt.plot(*exp_line, 'r', linestyle = "--", color=exp_color, linewidth=1)
@@ -184,51 +185,125 @@ def graph(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, l
                     facecolor = 'white', 
                     fontsize = 16
                     )
-
-    plt.title(f"{exp_name} vs. {con_name}- GR ratio:{round(gr_ratio, 3)} ({round(gr_pval, 3)}) Ymax ratio: {round(ymax_ratio, 3)} ({round(ymax_pval, 3)})", fontsize=20)
-    path =  data_path + "Graphs/" + exp_name
+    
+    # Format P-values
+    if gr_pval < 0.001:
+        gr_pval = "<0.001"
+    else:
+        gr_pval = round(gr_pval, 3)
+    if ymax_pval < 0.001:
+        ymax_pval = "<0.001"
+    else:
+        ymax_pval = round(ymax_pval, 3)
+        
+    plt.title(f"{exp_name} vs. {con_name}- GR ratio:{round(gr_ratio, 3)} ({gr_pval}) Ymax ratio: {round(ymax_ratio, 3)} ({ymax_pval})", fontsize=20)
+    path =  data_path + "Graphs/Averages/" + exp_name + "_vs_" + con_name
     plt.savefig(path, bbox_extra_artists=(lgd,), bbox_inches='tight')
     plt.close()
     
-    # If user indicates they want heatmaps (hm_flag = True)
-    """
-    if hm_flag:
-        # Create heatmaps
-        hm_df_gr = pd.DataFrame(hm_data_gr)
-        hm_df_gr.columns = ["Rows", "Columns", "GR"]
-
-        hm_df_ymax = pd.DataFrame(hm_data_ymax)
-        hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
-        # Create heatmap for growth rate ratios
-        heatmap_gr(hm_df_gr, file_n, data_path)
-        # Create heatmap for ymax ratios
-        heatmap_ymax(hm_df_ymax, file_n, data_path)
-    """
+# Graph each well of a replicate
+def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
+    """ Graph Formatting """
+    # You typically want your plot to be ~1.33x wider than tall.
+    # Common sizes: (10, 7.5) and (12, 9)
+    plt.figure(figsize=(10, 7.5))
     
-    """
-    # Text file to summarize well data
-    file_text = data_path + "Summaries/" + file_n + ".txt"
-    f = open(file_text, "w+")
+    repl_color = "#d62828"
 
-    # Write summary of plate to txt file
-    f.write("List of significant better wells per replicate for " + file_n + ":\n")
-    num_sig = len(sig_wells)
-    if total_sig == 0:
-        f.write("No significant wells\n")
-    else:
-        for i in sig_reps:
-            f.write(i + "- " + str(sig_reps[i]))
-            f.write("\t")
-        f.write("\nNumber of significantly better wells- " + str(num_sig) +
-                " out of  " + str(num_viable) + " wells that grew\n")
-        f.write("Total number of significant wells- " + str(total_sig))
-        f.write("\n\nWells:\n")
-        for i in range(num_sig):
-            f.write(sig_wells[i])
-            f.write("\n")
-    f.close()
-    """
+    # Remove the plot frame lines. They are unnecessary
+    ax = plt.subplot(111)
+    ax.spines["top"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+    
+    # Set background to white
+    ax.set_facecolor('white')
 
+    # Ensure that the axis ticks only show up on the bottom and left of the plot.
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+    # Limit the range of the plot to only where the data is.
+    plt.ylim(0, 2)
+    plt.xlim(0, XSCALE)
+
+    # Make sure your axis ticks are large enough to be easily read.
+    plt.yticks(np.arange(0, 1.7, 0.2), [str(round(x, 1)) for x in np.arange(0, 1.7, 0.2)], fontsize=14)
+    plt.xticks(np.arange(0, XSCALE, 24), [str(round(x,1)) for x in np.arange(0, XSCALE, 24)], fontsize=14)
+
+    # Provide tick lines across the plot to help your viewers trace along the axis ticks.
+    for y in np.arange(0, 1.7, 0.2):
+        plt.plot(range(0, XSCALE), [y] * len(range(0, XSCALE)), "--", lw=0.5, color="black", alpha=0.3)
+        
+    time = [x * 2 for x in range(0, 49)]
+    # Graph each replicate well
+    for plate_name in repl_data.keys():
+        # Plate
+        df = df_dict[plate_name]
+        # Wells in that specific plate that belong to given control replicate
+        wells = repl_data[plate_name]
+        # Counter for number of viable wells
+        n = 0
+        for well in wells:
+            gr, ymax, line = fit_model(df, well)
+            if ymax > 0.2:
+                n += 1
+            plt.plot(time, df[well], color=repl_color, linewidth=2.0)
+                
+    ax.plot([], [], label='Isolates', color=repl_color, linewidth=2.0)
+    # Place a legend to the right
+    lgd = ax.legend(
+                    loc = 'upper right', 
+                    borderaxespad = 0., 
+                    facecolor = 'white', 
+                    fontsize = 16
+                    )
+        
+    plt.title(f"{repl_name} Isolates: ({n} isolates with growth)", fontsize=24)
+    path =  data_path + "Graphs/" + repl_name 
+    plt.savefig(path, bbox_extra_artists=(lgd,), bbox_inches='tight')
+    plt.close()
+    
+# If user indicates they want heatmaps (hm_flag = True)
+"""
+if hm_flag:
+    # Create heatmaps
+    hm_df_gr = pd.DataFrame(hm_data_gr)
+    hm_df_gr.columns = ["Rows", "Columns", "GR"]
+
+    hm_df_ymax = pd.DataFrame(hm_data_ymax)
+    hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
+    # Create heatmap for growth rate ratios
+    heatmap_gr(hm_df_gr, file_n, data_path)
+    # Create heatmap for ymax ratios
+    heatmap_ymax(hm_df_ymax, file_n, data_path)
+"""
+
+"""
+# Text file to summarize well data
+file_text = data_path + "Summaries/" + file_n + ".txt"
+f = open(file_text, "w+")
+
+# Write summary of plate to txt file
+f.write("List of significant better wells per replicate for " + file_n + ":\n")
+num_sig = len(sig_wells)
+if total_sig == 0:
+    f.write("No significant wells\n")
+else:
+    for i in sig_reps:
+        f.write(i + "- " + str(sig_reps[i]))
+        f.write("\t")
+    f.write("\nNumber of significantly better wells- " + str(num_sig) +
+            " out of  " + str(num_viable) + " wells that grew\n")
+    f.write("Total number of significant wells- " + str(total_sig))
+    f.write("\n\nWells:\n")
+    for i in range(num_sig):
+        f.write(sig_wells[i])
+        f.write("\n")
+f.close()
+"""
+    
 """ Auxillary Functions """
 # P-test on individual wells
 def t_test(data1, data2) -> int:

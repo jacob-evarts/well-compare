@@ -7,3 +7,6 @@ __pycache__
 build
 dist
 pkgTestEnv
+wellcompare_old_code
+wellcompare.egg-info
+

@@ -20,25 +20,36 @@ import os
 from sys import exit
 
 # Helper files
-import extract
-from grph import graph
-import plate
+if __package__ is None or __package__ == '':
+    # uses current directory visibility
+    from extract import extr
+    from grph import graph_avg, graph_indiv
+    from plate import Plate
+else:
+    # uses current package visibility
+    from wellcompare.extract import extr
+    from wellcompare.grph import graph_avg, graph_indiv
+    from wellcompare.plate import Plate
+
 
 # Enter folder name hard coded here if running graph.py as main for testing
-DATA_PATH_HC = "../Screens/Test/"  
+DATA_PATH_HC = "../Screens/Test"  
               
 def proces(dp, hm_flag, log_flag):
     global DATA_PATH
-    DATA_PATH = dp + "/"
+    if dp[-1] != "/":
+        DATA_PATH = dp + "/"
+    else:
+        DATA_PATH = dp
     
     # Extracts the data from the format output by the Epoch2 plate reader
-    df_dict = extract.extr(DATA_PATH)
+    df_dict = extr(DATA_PATH)
             
     print("Graphing...\n")
     
     # Create Directories
     make_dir(DATA_PATH + "Graphs")
-    #make_dir(DATA_PATH + "Graphs/Replicates")
+    make_dir(DATA_PATH + "Graphs/Averages")
     #make_dir(DATA_PATH + "Summaries")
     # Heatmap functionality is being updated
     #make_dir(DATA_PATH + "Heatmaps")
@@ -61,10 +72,12 @@ def proces(dp, hm_flag, log_flag):
     # Initialize plate objects for each plate
     plate_obj_list = {}
     for plate_name in plate_names:
-        plate_obj_list[plate_name] = plate.Plate(plate_name, {}) 
+        plate_obj_list[plate_name] = Plate(plate_name, {}) 
         
     # List to hold all comparisons being made
     comparisons = []
+    # Set to hold all replicate names
+    replicates = set()
     # Parse plaate_mapping.txt for instructions
     with open(DATA_PATH + map_file, "r") as map_f:
         for line in map_f:
@@ -82,6 +95,7 @@ def proces(dp, hm_flag, log_flag):
                             wells = []
                             tokens = line.split(":")
                             repl_name = tokens[0]
+                            replicates.add(repl_name)
                             well_str = tokens[1]
                             indiv_wells = well_str.split(",")
                             for well in indiv_wells:
@@ -99,8 +113,7 @@ def proces(dp, hm_flag, log_flag):
                         comp.append(token.strip(" \n"))
                     comparisons.append(comp)
                     line = map_f.readline()
-                               
-                    
+                                
     for comparison in comparisons:
         # Comparing two strains
         if len(comparison) == 2:
@@ -125,9 +138,34 @@ def proces(dp, hm_flag, log_flag):
         # Comparing three strains comping in future update
         elif len(comparison) == 3:
             pass
-
-        graph(df_dict, con_data, exp_data, con_repl, exp_repl, DATA_PATH, hm_flag, log_flag, avg=True)
         
+        make_dir(exp_repl)
+        # Graph averages of replicates against each other
+        graph_avg(df_dict, con_data, exp_data, con_repl, exp_repl, DATA_PATH, hm_flag, log_flag, avg=True)
+        # Grapah individual wells of replicate
+        if exp_repl in replicates:
+            graph_indiv(df_dict, exp_data, exp_repl, DATA_PATH, log_flag)
+            replicates.remove(exp_repl)
+        if con_repl in replicates:
+            graph_indiv(df_dict, con_data, con_repl, DATA_PATH, log_flag)
+            replicates.remove(con_repl)
+    
+
+    if replicates:
+        replicates = list(replicates)
+        for repl in replicates:
+            repl_data = {}
+            for plate_name in plate_obj_list.keys():
+                plat = plate_obj_list[plate_name]
+                if repl in plat.get_repl_names():
+                    repl_data[plate_name] = plat.get_wells(repl)
+            # If log flag was chosen create extra directory
+            if log_flag:
+                make_dir(DATA_PATH + "Graphs/" + repl + "/Log2_Graphs")
+                
+            graph_indiv(df_dict, repl_data, repl, DATA_PATH, log_flag)
+            replicates.remove(repl)
+
     print("Finished.")
     
 """ Auxillary Functions """
@@ -139,4 +177,4 @@ def make_dir(dir_name):
        pass
        
 if __name__ == "__main__":
-    process(DATA_PATH_HC, hm_flag = False, log_flag = False)
+    proces(DATA_PATH_HC, hm_flag = False, log_flag = False)
