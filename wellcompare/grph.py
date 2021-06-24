@@ -16,7 +16,7 @@ from scipy import stats
 #from heatmap import heatmap_gr, heatmap_ymax
 #from graph_repl import graph_repls
 
-# How many hours are graphed
+# How many time points are graphed
 XSCALE = 97
 
 row_letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
@@ -88,7 +88,6 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     exp_avg = exp_name + "_avg"
     
     avg_df = pd.DataFrame()
-    avg_df["Time"] = [x * 2 for x in range(0, 48)]
     
     # Calculate parameter values for individual wells
     for plate_name in con_data.keys():
@@ -117,6 +116,7 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
             if ymax < 2: 
                 exp_ymaxs.append(ymax)
                 
+    avg_df["Time"] = df["Time"]
     # Calculate averages for replicates
     con_mean, con_std, con_ci = avg_well(control_wells)
     avg_df[con_avg] = con_mean
@@ -235,9 +235,9 @@ def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
     # Provide tick lines across the plot to help your viewers trace along the axis ticks.
     for y in np.arange(0, 1.7, 0.2):
         plt.plot(range(0, XSCALE), [y] * len(range(0, XSCALE)), "--", lw=0.5, color="black", alpha=0.3)
-        
-    time = [x * 2 for x in range(0, 49)]
+
     # Graph each replicate well
+    n = 0
     for plate_name in repl_data.keys():
         # Plate
         df = df_dict[plate_name]
@@ -249,7 +249,7 @@ def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
             gr, ymax, line = fit_model(df, well)
             if ymax > 0.2:
                 n += 1
-            plt.plot(time, df[well], color=repl_color, linewidth=2.0)
+            plt.plot(df["Time"], df[well], color=repl_color, linewidth=2.0)
                 
     ax.plot([], [], label='Isolates', color=repl_color, linewidth=2.0)
     # Place a legend to the right
@@ -264,45 +264,6 @@ def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
     path =  data_path + "Graphs/" + repl_name 
     plt.savefig(path, bbox_extra_artists=(lgd,), bbox_inches='tight')
     plt.close()
-    
-# If user indicates they want heatmaps (hm_flag = True)
-"""
-if hm_flag:
-    # Create heatmaps
-    hm_df_gr = pd.DataFrame(hm_data_gr)
-    hm_df_gr.columns = ["Rows", "Columns", "GR"]
-
-    hm_df_ymax = pd.DataFrame(hm_data_ymax)
-    hm_df_ymax.columns = ["Rows", "Columns", "Ymax"]
-    # Create heatmap for growth rate ratios
-    heatmap_gr(hm_df_gr, file_n, data_path)
-    # Create heatmap for ymax ratios
-    heatmap_ymax(hm_df_ymax, file_n, data_path)
-"""
-
-"""
-# Text file to summarize well data
-file_text = data_path + "Summaries/" + file_n + ".txt"
-f = open(file_text, "w+")
-
-# Write summary of plate to txt file
-f.write("List of significant better wells per replicate for " + file_n + ":\n")
-num_sig = len(sig_wells)
-if total_sig == 0:
-    f.write("No significant wells\n")
-else:
-    for i in sig_reps:
-        f.write(i + "- " + str(sig_reps[i]))
-        f.write("\t")
-    f.write("\nNumber of significantly better wells- " + str(num_sig) +
-            " out of  " + str(num_viable) + " wells that grew\n")
-    f.write("Total number of significant wells- " + str(total_sig))
-    f.write("\n\nWells:\n")
-    for i in range(num_sig):
-        f.write(sig_wells[i])
-        f.write("\n")
-f.close()
-"""
     
 """ Auxillary Functions """
 # P-test on individual wells

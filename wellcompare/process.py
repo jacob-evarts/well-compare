@@ -50,7 +50,7 @@ def proces(dp, hm_flag, log_flag):
     # Create Directories
     make_dir(DATA_PATH + "Graphs")
     make_dir(DATA_PATH + "Graphs/Averages")
-    #make_dir(DATA_PATH + "Summaries")
+
     # Heatmap functionality is being updated
     #make_dir(DATA_PATH + "Heatmaps")
     #make_dir(DATA_PATH + "Heatmaps/GR")
@@ -62,8 +62,11 @@ def proces(dp, hm_flag, log_flag):
         for file in os.listdir(DATA_PATH):
             # if the element is an xlsx file then
             if file == "plate_mapping.txt" or file == "plate_mappings.txt":
-                map_file = file 
+                map_file = file
     except FileNotFoundError:
+        print("FileNotFoundError, try making a plate_mapping.txt file and trying again")
+        exit(0)
+    if map_file == "":
         print("FileNotFoundError, try making a plate_mapping.txt file and trying again")
         exit(0)
         
@@ -139,12 +142,11 @@ def proces(dp, hm_flag, log_flag):
         elif len(comparison) == 3:
             pass
         
-        make_dir(exp_repl)
         # Graph averages of replicates against each other
         graph_avg(df_dict, con_data, exp_data, con_repl, exp_repl, DATA_PATH, hm_flag, log_flag, avg=True)
         # Grapah individual wells of replicate
         if exp_repl in replicates:
-            graph_indiv(df_dict, exp_data, exp_repl, DATA_PATH, log_flag)
+            graph_indiv(df_dict,  exp_data, exp_repl, DATA_PATH, log_flag)
             replicates.remove(exp_repl)
         if con_repl in replicates:
             graph_indiv(df_dict, con_data, con_repl, DATA_PATH, log_flag)

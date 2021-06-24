@@ -17,17 +17,15 @@ import numpy as np
 import os
 from sys import exit
 
-
 def extr(DATA_PATH):
     print("Extracting and cleaning...\n")
-
     data_file = ""
     # Data files from the experiment
     try:
         n_files = 0
         for file in os.listdir(DATA_PATH + "/Data"):
             # if the element is an xlsx file then
-            if file[-5:] == ".xlsx":
+            if file[-5:] == ".xlsx" and file[0] != "~":
                 data_file = file
                 n_files += 1
                 if n_files > 1:
@@ -42,7 +40,7 @@ def extr(DATA_PATH):
         os.mkdir(DATA_PATH + "Data/Raw_OD")
     except OSError:
         pass
-       
+    
     # Checks to see if experimental info exists is present
     info_file = ""
     try:
@@ -62,6 +60,7 @@ def extr(DATA_PATH):
     
     # Full spreadsheet
     xls = pd.ExcelFile(DATA_PATH + "Data/" + data_file)
+
     # List of all sheets in spreadsheet
     df_dict = pd.read_excel(xls, None)
         
@@ -107,7 +106,8 @@ def extr(DATA_PATH):
     df_dict = {}
     if water_plate_pres:
         offset = 1
-
+    
+    column_row = -1
     stop = len(plate_names)
     for i in range(0, stop):
         plate_name = plate_names[i]
@@ -117,28 +117,55 @@ def extr(DATA_PATH):
             sheet_name = "Plate " + str(i + 1 + offset) + " - Sheet1"
             # Format the dataframe to save correctly to an excel file
             df = pd.read_excel(xls, sheet_name)
-            column_names = df.iloc[[25], 1:99].values
-            column_names = column_names[0]
-            df_new = pd.DataFrame(df.iloc[25:(25 + num_measurements + 1), 1:99])
+            # Search through spreadsheet to find the start of the data
+            if column_row < 0:
+                for i in range(23, 30):
+                    column_names = df.iloc[[i], 1:99].values[0]
+                    #column_names = column_names[0]
+                    if column_names[0] == "Time":
+                        column_row = i
+                        break
+            # Didn't find data in the correct format
+            if column_row < 0:
+                print("Excel file is not in the correct format, see examples")
+                exit(0)
+                
+            df_new = pd.DataFrame(df.iloc[column_row:(column_row + num_measurements + 1), 1:99])
             df_new.reset_index(drop=True, inplace=True)
             df_new.columns = column_names
             
-            # Drop the temperature and time columns
-            df_new.drop(columns=["T° 600", "Time"], inplace=True)
+            # Drop the temperature column
+            df_new.drop(columns=["T° 600"], inplace=True)
             
-            # Create a times column with integer approximations of time since start
-            times = ["Time"]
-            for x in range((df_new.shape[0] - 1)):
-                times.append(x*2)
-            times_array = np.array(times)
-            df_new["Time"] = times_array
+            # Calculate the measurement times in minutes
+            times = df_new.Time.values
+            times_formatted = []
+            minutes = 0
+            for time in times:
+                # Retrieve number days between first measurement and current
+                try:
+                    days = time.day
+                except AttributeError:
+                    days = 0
+                # Retrieve hours
+                try:
+                    hours = time.hour
+                except AttributeError:
+                    hours = 0
+                # Retrieve minutes
+                try:
+                    mins = time.minute
+                except AttributeError:
+                    mins = 0
+                # Calculate minutes passed
+                minutes = (days * 24 + hours) * 60 + mins
+                total_hours = minutes / 60
+                times_formatted.append(total_hours)
+                
+            # Assign newly formatted times to column
+            df_new["Time"] = times_formatted
+            df_new.drop(df.index[0], inplace=True)
             
-            df_new.drop(df.index[0], inplace=True) 
-            # Rearrange the columns to "Time" is at the front
-            cols = df_new.columns.tolist()
-            cols = cols[-1:] + cols[:-1]
-            df_new = df_new[cols]
-
             # Store dataframes in a dictionary
             df_new.name = plate_name
             df_dict[plate_name] = df_new
