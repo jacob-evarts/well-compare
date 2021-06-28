@@ -13,7 +13,6 @@ Updated on June 2, 2021
     Hall, University of Oregon """
 
 import pandas as pd
-import numpy as np
 import os
 from sys import exit
 
@@ -48,8 +47,15 @@ def extr(DATA_PATH):
             # if the element is an xlsx file then
             if file == "experiment_info.txt" or file == "experimental_info.txt":
                 info_file = file 
+                # Pulling info from experimental_info.txt
+                print("Using information from experiment_info.txt\n")
+                break
     except FileNotFoundError:
         print("FileNotFoundError, try making an experiment_info.txt file and trying again")
+        exit(0)
+    if info_file == "":
+        print("FileNotFoundError, try making an experiment_info.txt file and trying again")
+        print("If this file already exists, try renaming it, deleting the last letter, then retyping the last letter")
         exit(0)
       
     # Experimental info
@@ -64,8 +70,6 @@ def extr(DATA_PATH):
     # List of all sheets in spreadsheet
     df_dict = pd.read_excel(xls, None)
         
-    # Pulling info from experimental_info.txt
-    print("Using information from experiment_info.txt\n")
     
     water_plates = ["top water", "bottom water", "water"]
     with open(DATA_PATH + info_file, "r") as info_f:
@@ -119,7 +123,7 @@ def extr(DATA_PATH):
             df = pd.read_excel(xls, sheet_name)
             # Search through spreadsheet to find the start of the data
             if column_row < 0:
-                for i in range(23, 30):
+                for i in range(0, 40):
                     column_names = df.iloc[[i], 1:99].values[0]
                     #column_names = column_names[0]
                     if column_names[0] == "Time":

@@ -19,25 +19,7 @@ from scipy import stats
 # How many time points are graphed
 XSCALE = 97
 
-row_letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
-cols = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-
-# List for making heatmaps
-w, h = 3, 96
-hm_data_gr = [[0 for x in range(w)] for y in range(h)]
-hm_data_ymax = [[0 for x in range(w)] for y in range(h)]
-
-index = 0
-for i in range(8):
-    for j in range(12):
-        hm_data_gr[index][0] = row_letters[i]
-        hm_data_gr[index][1] = cols[j]
-
-        hm_data_ymax[index][0] = row_letters[i]
-        hm_data_ymax[index][1] = cols[j]
-        index += 1
-
-def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_flag, log_flag, avg=False):
+def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, plate_list, hm_flag=False, log_flag=False):
     """ Plot Formatting """
     # You typically want your plot to be ~1.33x wider than tall.
     # Common sizes: (10, 7.5) and (12, 9)
@@ -93,11 +75,15 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     for plate_name in con_data.keys():
         # Plate
         df = df_dict[plate_name]
+        plat = plate_list[plate_name]
         # Wells in that specific plate that belong to given control replicate
         wells = con_data[plate_name]
         for well in wells:
+            if well == "":
+                break
             control_wells.append(df[well])
             gr, ymax, line = fit_model(df, well)
+            plat.add_params(gr, ymax, well)
             if gr < 2:
                 control_grs.append(gr)
             if ymax < 2: 
@@ -106,11 +92,15 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     for plate_name in exp_data.keys():
         # Plate
         df = df_dict[plate_name]
+        plat = plate_list[plate_name]
         # Wells in that specific plate that belong to given control replicate
         wells = exp_data[plate_name]
         for well in wells:
+            if well == "":
+                break
             exp_wells.append(df[well])
             gr, ymax, line = fit_model(df, well)
+            plat.add_params(gr, ymax, well)
             if gr < 2:
                 exp_grs.append(gr)
             if ymax < 2: 
@@ -140,8 +130,8 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     gr_pval = gr_stats[1]
     ymax_pval = ymax_stats[1]
     
-    if con_ymax > 0.2 and exp_ymax > 0.2:
-        # Normaalize experimental parameters with control parameters
+    if con_ymax > 0.01 and exp_ymax > 0.01:
+        # Normalize experimental parameters with control parameters
         gr_ratio = (exp_gr / con_gr) 
         ymax_ratio = (exp_ymax / con_ymax)
     else:
@@ -159,7 +149,7 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     """ Graphing """
     # Graph average experimental line
     plt.plot(avg_df["Time"], avg_df[exp_avg], color=exp_color, label=(exp_name), linewidth=3.0)
-    plt.plot(*exp_line, 'r', linestyle = "--", color=exp_color, linewidth=1)
+    # plt.plot(*exp_line, 'r', linestyle = "--", color=exp_color, linewidth=1)
     # Confidence intervals
     exp_ci_hi =  avg_df[exp_avg] + avg_df[exp_name + "_ci"]
     exp_ci_low = avg_df[exp_avg] - avg_df[exp_name + "_ci"]
@@ -168,7 +158,7 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
         
     # Graph average control line  
     plt.plot(avg_df["Time"], avg_df[con_avg], color=con_color, label=(con_name), linewidth=3.0)
-    plt.plot(*con_line, 'r', linestyle = "--", color=con_color, linewidth=1)
+    # plt.plot(*con_line, 'r', linestyle = "--", color=con_color, linewidth=1)
     # Confidence intervals
     con_ci_hi =  avg_df[con_avg] + avg_df[con_name + "_ci"]
     con_ci_low = avg_df[con_avg] - avg_df[con_name + "_ci"]
@@ -183,8 +173,7 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
                     loc = 'upper right', 
                     borderaxespad = 0., 
                     facecolor = 'white', 
-                    fontsize = 16
-                    )
+                    fontsize = 16)
     
     # Format P-values
     if gr_pval < 0.001:
@@ -202,13 +191,11 @@ def graph_avg(df_dict, con_data, exp_data, con_name, exp_name, data_path, hm_fla
     plt.close()
     
 # Graph each well of a replicate
-def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
+def graph_indiv(df_dict, repl_data, repl_name, data_path, plate_list, log_flag=False):
     """ Graph Formatting """
     # You typically want your plot to be ~1.33x wider than tall.
     # Common sizes: (10, 7.5) and (12, 9)
     plt.figure(figsize=(10, 7.5))
-    
-    repl_color = "#d62828"
 
     # Remove the plot frame lines. They are unnecessary
     ax = plt.subplot(111)
@@ -241,24 +228,32 @@ def graph_indiv(df_dict, repl_data, repl_name, data_path, log_flag):
     for plate_name in repl_data.keys():
         # Plate
         df = df_dict[plate_name]
+        plat = plate_list[plate_name]
         # Wells in that specific plate that belong to given control replicate
         wells = repl_data[plate_name]
         # Counter for number of viable wells
         n = 0
+        
         for well in wells:
-            gr, ymax, line = fit_model(df, well)
+            if well == "":
+                break
+            try:
+                gr, ymax = plat.get_params(well)
+            except KeyError:
+                gr, ymax, line = fit_model(df, well)
+                plat.add_params(gr, ymax, well)
+            
             if ymax > 0.2:
                 n += 1
-            plt.plot(df["Time"], df[well], color=repl_color, linewidth=2.0)
+            plt.plot(df["Time"], df[well], label=well, linewidth=2.5)
                 
-    ax.plot([], [], label='Isolates', color=repl_color, linewidth=2.0)
     # Place a legend to the right
     lgd = ax.legend(
                     loc = 'upper right', 
                     borderaxespad = 0., 
                     facecolor = 'white', 
-                    fontsize = 16
-                    )
+                    ncol = 2,
+                    fontsize = 16)
         
     plt.title(f"{repl_name} Isolates: ({n} isolates with growth)", fontsize=24)
     path =  data_path + "Graphs/" + repl_name 
@@ -283,11 +278,11 @@ def fit_model(df, well):
 
         # Fit a logistical model to calculate growth rate
         p0 = np.random.exponential(size=3) # Initialize random values
-        bounds = (0, [10000000., 100., 10000000.]) #Set bounds
-        # Prepare model 1
+        bounds = (0, [10000000., 100., 10000000.]) # Set bounds
+        # Prepare model 
         xt = np.array(df["Time"])
         yt = np.array(df[well])
-
+        
         # If no logistic curve can be fit, default to less sophisticated method of fitting line to exponentional section of the graph
         try:
             # Fit model 1

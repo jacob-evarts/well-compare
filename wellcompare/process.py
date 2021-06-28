@@ -25,15 +25,17 @@ if __package__ is None or __package__ == '':
     from extract import extr
     from grph import graph_avg, graph_indiv
     from plate import Plate
+    from heatmap import hm
 else:
     # uses current package visibility
     from wellcompare.extract import extr
     from wellcompare.grph import graph_avg, graph_indiv
     from wellcompare.plate import Plate
+    from wellcompare.heatmap import hm
 
 
 # Enter folder name hard coded here if running graph.py as main for testing
-DATA_PATH_HC = "../Screens/Test"  
+DATA_PATH_HC = "../Screens/MTest"  
               
 def proces(dp, hm_flag, log_flag):
     global DATA_PATH
@@ -45,24 +47,26 @@ def proces(dp, hm_flag, log_flag):
     # Extracts the data from the format output by the Epoch2 plate reader
     df_dict = extr(DATA_PATH)
             
-    print("Graphing...\n")
+    print("Graphing (this may take a minute)...\n")
     
     # Create Directories
     make_dir(DATA_PATH + "Graphs")
     make_dir(DATA_PATH + "Graphs/Averages")
 
     # Heatmap functionality is being updated
-    #make_dir(DATA_PATH + "Heatmaps")
-    #make_dir(DATA_PATH + "Heatmaps/GR")
-    #make_dir(DATA_PATH + "Heatmaps/Ymax")
+    make_dir(DATA_PATH + "Heatmaps")
+    make_dir(DATA_PATH + "Heatmaps/GR")
+    make_dir(DATA_PATH + "Heatmaps/Ymax")
     
     # Checks to see if plate mapping file exists is present
     map_file = ""
     try:
         for file in os.listdir(DATA_PATH):
-            # if the element is an xlsx file then
             if file == "plate_mapping.txt" or file == "plate_mappings.txt":
                 map_file = file
+                # Pulling info from experimental_info.txt
+                print("Using information from plate_mapping.txt\n")
+                break
     except FileNotFoundError:
         print("FileNotFoundError, try making a plate_mapping.txt file and trying again")
         exit(0)
@@ -75,7 +79,7 @@ def proces(dp, hm_flag, log_flag):
     # Initialize plate objects for each plate
     plate_obj_list = {}
     for plate_name in plate_names:
-        plate_obj_list[plate_name] = Plate(plate_name, {}) 
+        plate_obj_list[plate_name] = Plate(plate_name) 
         
     # List to hold all comparisons being made
     comparisons = []
@@ -116,7 +120,7 @@ def proces(dp, hm_flag, log_flag):
                         comp.append(token.strip(" \n"))
                     comparisons.append(comp)
                     line = map_f.readline()
-                                
+
     for comparison in comparisons:
         # Comparing two strains
         if len(comparison) == 2:
@@ -127,11 +131,10 @@ def proces(dp, hm_flag, log_flag):
             # Loop through plates pulling out groupings of replicates
             for plate_name in plate_obj_list.keys():
                 plat = plate_obj_list[plate_name]
-                
                 if exp_repl in plat.get_repl_names():
                     exp_data[plate_name] = plat.get_wells(exp_repl)
                     
-                elif con_repl in plat.get_repl_names():
+                if con_repl in plat.get_repl_names():
                     con_data[plate_name] = plat.get_wells(con_repl)
                     
             # If log flag was chosen create extra directory
@@ -143,13 +146,13 @@ def proces(dp, hm_flag, log_flag):
             pass
         
         # Graph averages of replicates against each other
-        graph_avg(df_dict, con_data, exp_data, con_repl, exp_repl, DATA_PATH, hm_flag, log_flag, avg=True)
+        graph_avg(df_dict, con_data, exp_data, con_repl, exp_repl, DATA_PATH, plate_obj_list, hm_flag, log_flag)
         # Grapah individual wells of replicate
         if exp_repl in replicates:
-            graph_indiv(df_dict,  exp_data, exp_repl, DATA_PATH, log_flag)
+            graph_indiv(df_dict,  exp_data, exp_repl, DATA_PATH, plate_obj_list, log_flag)
             replicates.remove(exp_repl)
         if con_repl in replicates:
-            graph_indiv(df_dict, con_data, con_repl, DATA_PATH, log_flag)
+            graph_indiv(df_dict, con_data, con_repl, DATA_PATH, plate_obj_list, log_flag)
             replicates.remove(con_repl)
     
 
@@ -165,10 +168,17 @@ def proces(dp, hm_flag, log_flag):
             if log_flag:
                 make_dir(DATA_PATH + "Graphs/" + repl + "/Log2_Graphs")
                 
-            graph_indiv(df_dict, repl_data, repl, DATA_PATH, log_flag)
+            graph_indiv(df_dict, repl_data, repl, DATA_PATH, plate_obj_list, log_flag)
             replicates.remove(repl)
+            
+    print("Heatmaps...")
+    # Loop through plates to make heatmaps
+    for plate_name in plate_obj_list.keys():
+        plat = plate_obj_list[plate_name]
+        hm(plat, DATA_PATH)
+        #heatmap_ymax()
 
-    print("Finished.")
+    print("\nFinished.")
     
 """ Auxillary Functions """
 def make_dir(dir_name):
